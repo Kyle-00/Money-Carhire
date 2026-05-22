@@ -3,108 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Money Carhire | Contact Us – Nairobi</title>
+    <title>Money Carhire | Complete Your Booking</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="responsive.css">
     <style>
-        .contact-hero {
-            background: linear-gradient(135deg, #000000, #2a2a2a), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format') center/cover no-repeat;
+        .booking-hero {
+            background: linear-gradient(135deg, #000000, #2a2a2a), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2083&auto=format') center/cover no-repeat;
             background-blend-mode: overlay;
-            min-height: 40vh;
+            min-height: 35vh;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            position: relative;
         }
-        .contact-hero .hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 3rem;
-        }
-        .contact-hero h1 {
+        .booking-hero h1 {
             font-size: 3rem;
             color: white;
-            margin-bottom: 1rem;
         }
-        .contact-hero p {
-            color: #e0e0e0;
-            font-size: 1.1rem;
-        }
-        .contact-section {
-            max-width: 1300px;
-            margin: 4rem auto;
+        .booking-main {
+            max-width: 1200px;
+            margin: 3rem auto;
             padding: 0 1.5rem;
         }
-        .contact-grid {
+        .booking-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            gap: 2rem;
         }
-        .contact-info {
+        .booking-form-card, .booking-summary {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 32px;
             padding: 2rem;
             border: 1px solid var(--glass-border);
         }
-        .contact-info h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent-gold);
+        .form-group {
+            margin-bottom: 1.2rem;
         }
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
         }
-        .info-item i {
-            font-size: 1.5rem;
-            color: var(--accent-gold);
-            width: 40px;
-        }
-        .contact-form {
-            background: var(--bg-surface);
-            border-radius: 32px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-        }
-        .contact-form input, .contact-form textarea {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 1rem;
+            padding: 10px 16px;
             border-radius: 40px;
             border: 1px solid var(--glass-border);
             background: var(--bg-primary);
             color: var(--text-primary);
             font-family: inherit;
         }
-        .contact-form textarea {
+        .form-group textarea {
             border-radius: 24px;
             resize: vertical;
         }
-        .map-container {
-            margin-top: 3rem;
-            border-radius: 32px;
-            overflow: hidden;
-            height: 350px;
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--glass-border);
         }
-        .map-container iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        @media (max-width: 992px) {
-            .contact-grid {
-                grid-template-columns: 1fr;
-            }
+        .summary-total {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--accent-gold);
         }
         @media (max-width: 768px) {
-            .contact-hero h1 {
-                font-size: 2rem;
-            }
+            .booking-grid { grid-template-columns: 1fr; }
+            .booking-hero h1 { font-size: 2rem; }
         }
     </style>
 </head>
@@ -122,8 +93,8 @@
                 <a href="index.html">Home</a>
                 <a href="index.html#fleet">Fleet</a>
                 <a href="index.html#testimonials">Testimonials</a>
-                <a href="contact.html" class="active">Contact</a>
-                <a href="booking.html">Reserve</a>
+                <a href="contact.html">Contact</a>
+                <a href="booking.html" class="active">Reserve</a>
             </div>
             <div class="hamburger" id="hamburger">
                 <span></span><span></span><span></span>
@@ -131,36 +102,90 @@
         </div>
     </nav>
 
-    <section class="contact-hero">
+    <section class="booking-hero">
         <div class="hero-content">
-            <h1>Let’s Connect</h1>
-            <p>Our Nairobi concierge team is ready to assist you 24/7.</p>
+            <h1>Secure Your Drive</h1>
+            <p>Fill in the details and our team will confirm within 2 hours.</p>
         </div>
     </section>
 
-    <div class="contact-section">
-        <div class="contact-grid">
-            <div class="contact-info">
-                <h3><i class="fas fa-gem"></i> Money Carhire Concierge</h3>
-                <div class="info-item"><i class="fas fa-map-marker-alt"></i><span>Westlands Business Park, Nairobi, Kenya</span></div>
-                <div class="info-item"><i class="fas fa-phone-alt"></i><span>+254 700 123 456</span></div>
-                <div class="info-item"><i class="fas fa-envelope"></i><span>hello@moneycarhire.co.ke</span></div>
-                <div class="info-item"><i class="fas fa-clock"></i><span>Mon–Sun: 8:00 AM – 10:00 PM</span></div>
-                <div class="info-item"><i class="fas fa-car"></i><span>Airport & hotel delivery available</span></div>
-            </div>
-            <div class="contact-form">
-                <h3>Send a message</h3>
+    <div class="booking-main">
+        <div class="booking-grid">
+            <!-- Booking Form -->
+            <div class="booking-form-card">
+                <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
                 <form action="#" method="post">
-                    <input type="text" placeholder="Full name" required>
-                    <input type="email" placeholder="Email address" required>
-                    <input type="tel" placeholder="Phone (optional)">
-                    <textarea rows="5" placeholder="Your message..."></textarea>
-                    <button type="submit" class="btn-gold">Send message <i class="fas fa-paper-plane"></i></button>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" placeholder="e.g., John Mwangi" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone</label>
+                        <input type="tel" placeholder="+254 7XX XXX XXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-check"></i> Pickup Date</label>
+                        <input type="date" value="2026-06-01">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-times"></i> Return Date</label>
+                        <input type="date" value="2026-06-05">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-pin"></i> Pickup Location</label>
+                        <select>
+                            <option>Nairobi - Wilson Airport</option>
+                            <option>Nairobi - Westlands</option>
+                            <option>Mombasa - Bamburi</option>
+                            <option>Kisumu - CBD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-car"></i> Select Vehicle</label>
+                        <select>
+                            <option>Mercedes G-Wagon - KSh 70,000/day</option>
+                            <option>BMW X6 - KSh 40,000/day</option>
+                            <option>Range Rover Sport - KSh 50,000/day</option>
+                            <option>Mercedes C200 - KSh 10,500/day</option>
+                            <option>Audi A5 - KSh 15,500/day</option>
+                            <option>Mazda CX-5 - KSh 7,000/day</option>
+                            <option>Toyota Mark X - KSh 6,500/day</option>
+                            <option>Toyota Fielder - KSh 4,500/day</option>
+                            <option>Mazda Axela - KSh 4,500/day</option>
+                            <option>Toyota Demio - KSh 3,500/day</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-comment"></i> Special Requests</label>
+                        <textarea rows="3" placeholder="e.g., Child seat, driver, champagne..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-gold" style="width:100%"><i class="fas fa-paper-plane"></i> Submit Booking Request</button>
                 </form>
             </div>
-        </div>
-        <div class="map-container">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.846956644125!2d36.804871!3d-1.267843!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1741e28a6e77%3A0xc2a4e1e4d2f5e0!2sWestlands%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1716985200000!5m2!1sen!2ske" allowfullscreen="" loading="lazy"></iframe>
+
+            <!-- Static Summary Example -->
+            <div class="booking-summary">
+                <h3><i class="fas fa-receipt"></i> Estimate (example)</h3>
+                <div class="summary-item"><span>Vehicle</span><span>Mercedes G-Wagon</span></div>
+                <div class="summary-item"><span>Daily rate</span><span>KSh 70,000</span></div>
+                <div class="summary-item"><span>Number of days</span><span>5 days (example)</span></div>
+                <div class="summary-item"><span>Insurance & taxes</span><span>Included</span></div>
+                <div class="summary-total">Total: KSh 350,000</div>
+                <p class="note" style="margin-top:1rem; font-size:0.8rem;">*Final total will be calculated based on your selected dates and vehicle. Our team will send a confirmed quote.</p>
+                <hr style="margin: 1rem 0; border-color: var(--glass-border);">
+                <div class="info-item" style="display: flex; gap: 0.8rem; align-items: center;">
+                    <i class="fas fa-shield-alt" style="color: var(--accent-gold);"></i>
+                    <span>Full insurance coverage included</span>
+                </div>
+                <div class="info-item" style="display: flex; gap: 0.8rem; align-items: center; margin-top: 0.5rem;">
+                    <i class="fas fa-headset" style="color: var(--accent-gold);"></i>
+                    <span>24/7 Nairobi concierge support</span>
+                </div>
+            </div>
         </div>
     </div>
 
