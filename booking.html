@@ -16,6 +16,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            color: gold;
         }
         .booking-hero h1 {
             font-size: 3rem;
@@ -31,12 +32,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
-        .booking-form-card, .booking-summary {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            padding: 2rem;
-            border: 1px solid var(--glass-border);
+        .booking-form-card {
+            border: 30px var(--accent-gold);
+            border-radius: 10px;
+            box-shadow: 0 0 0 2px rgba(201, 160, 61, 0.2);
         }
         .form-group {
             margin-bottom: 1.2rem;
@@ -49,8 +48,8 @@
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px 16px;
-            border-radius: 40px;
-            border: 1px solid var(--glass-border);
+            border-radius: 5px;
+            border: 2px solid var(--accent-gold);
             background: var(--bg-primary);
             color: var(--text-primary);
             font-family: inherit;
@@ -58,6 +57,10 @@
         .form-group textarea {
             border-radius: 24px;
             resize: vertical;
+        }
+        .input:focus,select:focus{
+            border-color: #f1c40f;
+
         }
         .summary-item {
             display: flex;
@@ -114,6 +117,7 @@
             <!-- Booking Form -->
             <div class="booking-form-card">
                 <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
+                <br>
                 <form action="#" method="post">
                     <div class="form-group">
                         <label><i class="fas fa-user"></i> Full Name</label>
@@ -138,10 +142,10 @@
                     <div class="form-group">
                         <label><i class="fas fa-map-pin"></i> Pickup Location</label>
                         <select>
-                            <option>Nairobi - Wilson Airport</option>
+                            <option>Nairobi - Kiambu Rd</option>
                             <option>Nairobi - Westlands</option>
                             <option>Mombasa - Bamburi</option>
-                            <option>Kisumu - CBD</option>
+
                         </select>
                     </div>
                     <div class="form-group">
