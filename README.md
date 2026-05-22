@@ -1,30 +1,27 @@
 # Money Carhire – Premium Car Rental (Nairobi, Kenya)
 
-A visually stunning, fully responsive luxury car rental website built with **pure HTML & CSS** (no JavaScript).  
-Showcases a premium fleet, booking sidebar, dark mode toggle, and Nairobi‑centric branding with prices in **Kenyan Shillings (KSh)**.
+A visually stunning, fully responsive luxury car rental website which showcases a premium fleet, booking page and Nairobi‑centric branding with prices in **Kenyan Shillings (KSh)**.
 
 ---
 
 ##  Features
 
-- ✅ **Cinematic Hero Section** – full‑width background with search form  
-- ✅ **Car Showcase Grid** – 9 luxury cars 
-- ✅ **Glassmorphism Design** – modern blurred backgrounds, gold accents  
-- ✅ **Pure CSS Dark Mode** – floating button toggles dark/light theme (no JS)  
-- ✅ **Booking Sidebar** – static date/location inputs, estimated total in KSh  
-- ✅ **Testimonials Section** – customer reviews with hover animations  
-- ✅ **Responsive Layout** – mobile‑friendly grid, CSS‑only hamburger menu  
-- ✅ **Kenya Focus** – locations: Nairobi (Wilson Airport, Westlands), Mombasa, Kisumu  
+- **Cinematic Hero Section** – full‑width background with search form  
+-  **Car Showcase Grid** – 9 luxury cars 
+- **Glassmorphism Design** – modern blurred backgrounds, gold accents  
+-  **Pure CSS Dark Mode** – floating button toggles dark/light theme (no JS)  
+-  **Booking Sidebar** – static date/location inputs, estimated total in KSh  
+-  **Testimonials Section** – customer reviews with hover animations  
+-  **Responsive Layout** – mobile‑friendly grid, CSS‑only hamburger menu  
+  
 
 ---
 
 ##  Technologies Used
 
-- **HTML5** – semantic markup  
-- **CSS3** – custom properties (variables), Flexbox, Grid, animations, checkbox hack  
-- **Font Awesome 6** – icons  
-- **Google Fonts** – Inter typeface  
-- **No JavaScript** – all interactions are static or CSS‑driven
+- **HTML** – semantic markup  
+- **CSS** – custom properties (variables), Flexbox, Grid, animations, checkbox hack  
+- **Font Awesome ** – icons  
 
 ---
 
@@ -37,7 +34,7 @@ Money-Carhire/
 
 ---
 
-## 🚀 How to Run Locally
+##  How to Run Locally
 
 1. **Copy** the full HTML code (provided above) into a new file named `index.html`.  
 2. **Open** `index.html` in any modern web browser (Chrome, Firefox, Edge, Safari).  
@@ -80,6 +77,3 @@ Update the text inside .logo span and the hero section heading.
 * Unsplash for car imagery
 * Font Awesome for icons
 * Google Fonts for the Inter typeface
-
-
-Money Carhire – Drive Beyond Ordinary

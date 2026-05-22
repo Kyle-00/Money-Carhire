@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="responsive.css">
 </head>
 <body>
-    <!-- CSS-only dark mode toggle using checkbox hack -->
+    <!-- CSS-only dark mode toggle -->
     <input type="checkbox" id="darkModeToggle" class="dark-mode-checkbox">
     <label for="darkModeToggle" class="dark-mode-label"><i class="fas fa-moon"></i></label>
 
@@ -20,10 +20,11 @@
                 <span>Money Carhire</span>
             </div>
             <div class="nav-links" id="navLinks">
-                <a href="#">Home</a>
+                <a href="index.html">Home</a>
                 <a href="#fleet">Fleet</a>
                 <a href="#testimonials">Testimonials</a>
-                <a href="#booking-sidebar">Reserve</a>
+                <a href="contact.html">Contact</a>
+                <a href="booking.html">Reserve</a>
             </div>
             <div class="hamburger" id="hamburger">
                 <span></span><span></span><span></span>
@@ -53,6 +54,7 @@
         </div>
     </section>
 
+    <!-- Filter Section -->
     <div class="filter-wrapper">
         <div class="filter-container">
             <div class="filter-group">
@@ -66,7 +68,7 @@
                 <div class="filter-btns">
                     <button class="filter-btn">SUV</button>
                     <button class="filter-btn">Sedan</button>
-                    <button class="filter-btn active-filter"></button>
+                    <button class="filter-btn active-filter">Sports</button>
                     <button class="filter-btn active-filter">All</button>
                 </div>
             </div>
@@ -77,116 +79,115 @@
                     <button class="filter-btn">Manual</button>
                 </div>
             </div>
-      
             <button class="reset-filters"><i class="fas fa-undo-alt"></i> Reset</button>
         </div>
     </div>
 
-    <!-- Car Showcase Grid (Static) -->
+    <!-- Car Showcase Grid (9 cars) -->
     <section id="fleet" class="car-showcase">
         <div class="section-header">
             <h2>Our Masterpiece Collection</h2>
             <p>Hand-picked sedans & luxury SUVs in Nairobi</p>
         </div>
         <div class="cars-grid">
-           
-            <!-- Car Card 1 -->
+            <!-- Car 1: Mercedes G-Wagon -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Mercedes G-Wagon">
+                <img class="car-img" src="assets/images/G-wagon.jpg" alt="Mercedes G-Wagon">
                 <div class="card-content">
                     <div class="car-title">Mercedes G-Wagon</div>
                     <div class="car-details"><span>Automatic</span><span>V8</span><span>⭐ 4.8</span></div>
                     <div class="price-day">KSh 70,000 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Mercedes%20G-Wagon&price=70000" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 2 -->
+            <!-- Car 2: BMW X6 -->
             <div class="car-card">
-                <img class="car-img" src="" alt="BMW X6">
+                <img class="car-img" src="assets/images/BMW X6.jpg" alt="BMW X6">
                 <div class="card-content">
                     <div class="car-title">BMW X6</div>
                     <div class="car-details"><span>Automatic</span><span>Straight-6</span><span>⭐ 4.7</span></div>
                     <div class="price-day">KSh 40,000 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=BMW%20X6&price=40000" class="view-btn">View Details</a>
                 </div>
-            <!-- Car Card 2 -->
+            </div>
+            <!-- Car 3: Range Rover Sport -->
             <div class="car-card">
-                <img class="car-img" src="" alt="BMW X6">
+                <img class="car-img" src="assets/images/Range rover.jpg" alt="Range Rover Sport">
                 <div class="card-content">
                     <div class="car-title">Range Rover Sport</div>
-                    <div class="car-details"><span>Automatic</span><span>Straight-6</span><span>⭐ 4.7</span></div>
+                    <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.7</span></div>
                     <div class="price-day">KSh 50,000 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Range%20Rover%20Sport&price=50000" class="view-btn">View Details</a>
                 </div>
             </div>
-             <!-- Car Card 3 -->
+            <!-- Car 4: Mercedes C200 -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Mercedes C200">
+                <img class="car-img" src="assets/images/benz E350.jpg" alt="Mercedes E350">
                 <div class="card-content">
-                    <div class="car-title">Mercedes Benz C200</div>
+                    <div class="car-title">Mercedes Benz E350</div>
                     <div class="car-details"><span>Automatic</span><span>V10</span><span>⭐ 4.9</span></div>
                     <div class="price-day">KSh 10,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Mercedes%20C200&price=10500" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 4 -->
+            <!-- Car 5: Audi A5 -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Audi A5">
+                <img class="car-img" src="assets/images/audi a5.jpg" alt="Audi A5">
                 <div class="card-content">
                     <div class="car-title">Audi A5</div>
                     <div class="car-details"><span>Automatic</span><span>Boxer</span><span>⭐ 5.0</span></div>
                     <div class="price-day">KSh 15,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Audi%20A5&price=15500" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 5 -->
+            <!-- Car 6: Mazda CX-5 -->
             <div class="car-card">
-                <img class="car-img" src="" alt="CX-5">
+                <img class="car-img" src="assets/images/mazda cx5.jpg" alt="Mazda CX-5">
                 <div class="card-content">
                     <div class="car-title">Mazda CX-5</div>
-                    <div class="car-details"><span>Automatic</span><span>Hybrid V8</span><span>⭐ 4.9</span></div>
+                    <div class="car-details"><span>Automatic</span><span>Hybrid</span><span>⭐ 4.9</span></div>
                     <div class="price-day">KSh 7,000 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Mazda%20CX-5&price=7000" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 6 -->
+            <!-- Car 7: Toyota Mark X -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Mark X">
+                <img class="car-img" src="assets/images/mark x.jpg" alt="Toyota Mark X">
                 <div class="card-content">
                     <div class="car-title">Toyota Mark X</div>
                     <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
                     <div class="price-day">KSh 6,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Toyota%20Mark%20X&price=6500" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 7 -->
+            <!-- Car 8: Toyota Fielder -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Toyota feilder">
+                <img class="car-img" src="assets/images/toyota feilder.jpg" alt="Toyota Fielder">
                 <div class="card-content">
-                    <div class="car-title">Toyota Feilder</div>
+                    <div class="car-title">Toyota Fielder</div>
                     <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
                     <div class="price-day">KSh 4,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Toyota%20Fielder&price=4500" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 8 -->
+            <!-- Car 9: Mazda Axela -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Mazda Axela">
+                <img class="car-img" src="assets/images/mazda axela.jpg" alt="Mazda Axela">
                 <div class="card-content">
                     <div class="car-title">Mazda Axela</div>
                     <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
                     <div class="price-day">KSh 4,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Mazda%20Axela&price=4500" class="view-btn">View Details</a>
                 </div>
             </div>
-            <!-- Car Card 9 -->
+            <!-- Car 10: Toyota Demio -->
             <div class="car-card">
-                <img class="car-img" src="" alt="Toyota Demio">
+                <img class="car-img" src="assets/images/toyota demio.jpg" alt="Toyota Demio">
                 <div class="card-content">
                     <div class="car-title">Toyota Demio</div>
                     <div class="car-details"><span>Manual</span><span>V6</span><span>⭐ 4.6</span></div>
                     <div class="price-day">KSh 3,500 <span>/ day</span></div>
-                    <button class="view-btn">View Details</button>
+                    <a href="booking.html?car=Toyota%20Demio&price=3500" class="view-btn">View Details</a>
                 </div>
             </div>
         </div>
@@ -215,13 +216,13 @@
             </div>
             <div class="price-preview">
                 <span>Daily base rate:</span>
-                <span>KSh 115,700</span>
+                <span>KSh 70,000</span>
             </div>
             <div class="total-estimate">
                 <span>Estimated total:</span>
-                <span>KSh 462,800</span>
+                <span>KSh 350,000</span>
             </div>
-            <button class="btn-gold btn-sidebar"><i class="fas fa-lock"></i> Complete booking</button>
+            <a href="booking.html" class="btn-gold btn-sidebar"><i class="fas fa-lock"></i> Complete booking</a>
             <p class="note">*taxes & insurance included | KSh (Kenyan Shilling)</p>
         </div>
     </aside>
@@ -235,17 +236,17 @@
         <div class="testimonial-grid">
             <div class="testimonial-card">
                 <i class="fas fa-star star-icon"></i>
-                <p>"The Lamborghini Huracán turned heads in Westlands. Flawless service and premium support."</p>
+                <p>"The G-Wagon turned heads in Westlands. Flawless service and premium support."</p>
                 <h4>— Wanjiku N.</h4>
             </div>
             <div class="testimonial-card">
                 <i class="fas fa-star star-icon"></i>
-                <p>"First time renting a G-Wagon in Nairobi – Money Carhire made it effortless. Highly recommend."</p>
+                <p>"First time renting a BMW X6 in Nairobi – Money Carhire made it effortless. Highly recommend."</p>
                 <h4>— Otieno R.</h4>
             </div>
             <div class="testimonial-card">
                 <i class="fas fa-star star-icon"></i>
-                <p>"Smooth booking, amazing Porsche 911, and prices in KSh made everything clear. 5 stars."</p>
+                <p>"Smooth booking, amazing Range Rover, and prices in KSh made everything clear. 5 stars."</p>
                 <h4>— A. Khan</h4>
             </div>
         </div>
