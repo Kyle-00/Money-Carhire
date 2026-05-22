@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Money Carhire | Premium Car Rental Nairobi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+    <!-- CSS-only dark mode toggle using checkbox hack -->
+    <input type="checkbox" id="darkModeToggle" class="dark-mode-checkbox">
+    <label for="darkModeToggle" class="dark-mode-label"><i class="fas fa-moon"></i></label>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-car-side"></i>
+                <span>Money Carhire</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#">Home</a>
+                <a href="#fleet">Fleet</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#booking-sidebar">Reserve</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Drive Beyond Ordinary <br> Nairobi’s Finest</h1>
+            <p class="hero-sub">Unleash prestige with Kenya’s #1 luxury car rental — Money Carhire.</p>
+            <div class="hero-search">
+                <form class="search-form">
+                    <div class="search-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" placeholder="Pick-up location" value="Nairobi, Kenya">
+                    </div>
+                    <div class="search-group">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="text" placeholder="Pick a date" value="May 28, 2026">
+                    </div>
+                    <button type="submit" class="btn-gold">Explore fleet <i class="fas fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="filter-wrapper">
+        <div class="filter-container">
+            <div class="filter-group">
+                <label><i class="fas fa-tag"></i> Price / day (KSh)</label>
+                <div class="price-range">
+                    <span>0 KSh - 100,000 KSh</span>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-car"></i> Vehicle Type</label>
+                <div class="filter-btns">
+                    <button class="filter-btn">SUV</button>
+                    <button class="filter-btn">Sedan</button>
+                    <button class="filter-btn active-filter"></button>
+                    <button class="filter-btn active-filter">All</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-cogs"></i> Transmission</label>
+                <div class="filter-btns">
+                    <button class="filter-btn active-filter">Auto</button>
+                    <button class="filter-btn">Manual</button>
+                </div>
+            </div>
+      
+            <button class="reset-filters"><i class="fas fa-undo-alt"></i> Reset</button>
+        </div>
+    </div>
+
+    <!-- Car Showcase Grid (Static) -->
+    <section id="fleet" class="car-showcase">
+        <div class="section-header">
+            <h2>Our Masterpiece Collection</h2>
+            <p>Hand-picked sedans & luxury SUVs in Nairobi</p>
+        </div>
+        <div class="cars-grid">
+           
+            <!-- Car Card 1 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Mercedes G-Wagon">
+                <div class="card-content">
+                    <div class="car-title">Mercedes G-Wagon</div>
+                    <div class="car-details"><span>Automatic</span><span>V8</span><span>⭐ 4.8</span></div>
+                    <div class="price-day">KSh 70,000 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 2 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="BMW X6">
+                <div class="card-content">
+                    <div class="car-title">BMW X6</div>
+                    <div class="car-details"><span>Automatic</span><span>Straight-6</span><span>⭐ 4.7</span></div>
+                    <div class="price-day">KSh 40,000 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            <!-- Car Card 2 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="BMW X6">
+                <div class="card-content">
+                    <div class="car-title">Range Rover Sport</div>
+                    <div class="car-details"><span>Automatic</span><span>Straight-6</span><span>⭐ 4.7</span></div>
+                    <div class="price-day">KSh 50,000 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+             <!-- Car Card 3 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Mercedes C200">
+                <div class="card-content">
+                    <div class="car-title">Mercedes Benz C200</div>
+                    <div class="car-details"><span>Automatic</span><span>V10</span><span>⭐ 4.9</span></div>
+                    <div class="price-day">KSh 10,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 4 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Audi A5">
+                <div class="card-content">
+                    <div class="car-title">Audi A5</div>
+                    <div class="car-details"><span>Automatic</span><span>Boxer</span><span>⭐ 5.0</span></div>
+                    <div class="price-day">KSh 15,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 5 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="CX-5">
+                <div class="card-content">
+                    <div class="car-title">Mazda CX-5</div>
+                    <div class="car-details"><span>Automatic</span><span>Hybrid V8</span><span>⭐ 4.9</span></div>
+                    <div class="price-day">KSh 7,000 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 6 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Mark X">
+                <div class="card-content">
+                    <div class="car-title">Toyota Mark X</div>
+                    <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
+                    <div class="price-day">KSh 6,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 7 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Toyota feilder">
+                <div class="card-content">
+                    <div class="car-title">Toyota Feilder</div>
+                    <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
+                    <div class="price-day">KSh 4,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 8 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Mazda Axela">
+                <div class="card-content">
+                    <div class="car-title">Mazda Axela</div>
+                    <div class="car-details"><span>Automatic</span><span>V6</span><span>⭐ 4.6</span></div>
+                    <div class="price-day">KSh 4,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+            <!-- Car Card 9 -->
+            <div class="car-card">
+                <img class="car-img" src="" alt="Toyota Demio">
+                <div class="card-content">
+                    <div class="car-title">Toyota Demio</div>
+                    <div class="car-details"><span>Manual</span><span>V6</span><span>⭐ 4.6</span></div>
+                    <div class="price-day">KSh 3,500 <span>/ day</span></div>
+                    <button class="view-btn">View Details</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Sidebar (Static) -->
+    <aside class="booking-sidebar" id="booking-sidebar">
+        <div class="sidebar-card">
+            <h3><i class="fas fa-receipt"></i> Reserve your drive</h3>
+            <div class="sidebar-field">
+                <label><i class="fas fa-calendar-check"></i> Pickup Date</label>
+                <input type="date" value="2026-06-01">
+            </div>
+            <div class="sidebar-field">
+                <label><i class="fas fa-calendar-times"></i> Return Date</label>
+                <input type="date" value="2026-06-05">
+            </div>
+            <div class="sidebar-field">
+                <label><i class="fas fa-map-pin"></i> Location</label>
+                <select>
+                    <option>Nairobi - Wilson Airport</option>
+                    <option>Nairobi - Westlands</option>
+                    <option>Mombasa - Bamburi</option>
+                    <option>Kisumu - CBD</option>
+                </select>
+            </div>
+            <div class="price-preview">
+                <span>Daily base rate:</span>
+                <span>KSh 115,700</span>
+            </div>
+            <div class="total-estimate">
+                <span>Estimated total:</span>
+                <span>KSh 462,800</span>
+            </div>
+            <button class="btn-gold btn-sidebar"><i class="fas fa-lock"></i> Complete booking</button>
+            <p class="note">*taxes & insurance included | KSh (Kenyan Shilling)</p>
+        </div>
+    </aside>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="testimonials">
+        <div class="section-header">
+            <h2>Voices of Excellence</h2>
+            <p>What our Nairobi clients say about Money Carhire</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <i class="fas fa-star star-icon"></i>
+                <p>"The Lamborghini Huracán turned heads in Westlands. Flawless service and premium support."</p>
+                <h4>— Wanjiku N.</h4>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-star star-icon"></i>
+                <p>"First time renting a G-Wagon in Nairobi – Money Carhire made it effortless. Highly recommend."</p>
+                <h4>— Otieno R.</h4>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-star star-icon"></i>
+                <p>"Smooth booking, amazing Porsche 911, and prices in KSh made everything clear. 5 stars."</p>
+                <h4>— A. Khan</h4>
+            </div>
+        </div>
+    </section>
+
+    <footer class="luxury-footer">
+        <p>© 2026 Money Carhire — Premium car rental, Nairobi, Kenya</p>
+        <div class="social-icons">
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-x-twitter"></i>
+            <i class="fab fa-linkedin-in"></i>
+        </div>
+    </footer>
+</body>
+</html>
