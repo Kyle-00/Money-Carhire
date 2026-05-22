@@ -245,22 +245,60 @@ body {
     cursor: pointer;
     color: var(--accent-gold);
 }
-/* Price slider styling */
+/* Luxury Price Slider Styling */
 .price-slider {
     width: 100%;
-    margin: 10px 0;
+    height: 6px;
     -webkit-appearance: none;
-    background: var(--glass-border);
-    height: 4px;
-    border-radius: 5px;
+    appearance: none;
+    background: linear-gradient(90deg, var(--accent-gold) 0%, var(--glass-border) 100%);
+    border-radius: 10px;
+    outline: none;
+    margin: 15px 0;
 }
+
+/* Slider Thumb (the circle you drag) */
 .price-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+    width: 18px;
+    height: 18px;
     background: var(--accent-gold);
+    border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 0 6px rgba(201, 160, 61, 0.6);
+    border: 2px solid var(--bg-surface);
+    transition: 0.1s;
+}
+.price-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: #e0b354;
+}
+
+/* Firefox support */
+.price-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+.price-slider::-moz-range-track {
+    height: 6px;
+    background: var(--glass-border);
+    border-radius: 10px;
+}
+
+/* Display current price nicely */
+#priceValue {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--accent-gold);
+    background: var(--glass-bg);
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    margin-top: 5px;
 }
 .filter-group select {
     padding: 6px 12px;
