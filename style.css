@@ -93,9 +93,9 @@ body {
     align-items: center;
 }
 .nav-links a {
-    text-decoration: underline;
+    text-decoration: none;
     font-weight: 500;
-    color: var(--text-primary);
+    color: rgb(9, 190, 236);
     transition: 0.2s;
 }
 .nav-links a:hover, .nav-links a.active {
