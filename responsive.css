@@ -1,0 +1,263 @@
+/*  Media queries for all device sizes */
+
+/* Base responsive helpers */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ensure containers don't overflow */
+.nav-container,
+.car-showcase,
+.testimonials,
+.hero-content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* -- BREAKPOINT: 1024px (small laptops) -- */
+@media (max-width: 1024px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+
+    .search-form {
+        padding: 1rem 1.5rem;
+        border-radius: 48px;
+    }
+
+    .cars-grid {
+        gap: 1.5rem;
+    }
+}
+
+/*-- BREAKPOINT: 768px (tablets)-- */
+@media (max-width: 768px) {
+    /* Navigation */
+    .nav-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-links a {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .logo span {
+        font-size: 1.5rem;
+    }
+
+    /* Hero */
+    .hero {
+        min-height: 70vh;
+        padding: 2rem 1rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-sub {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .search-form {
+        flex-direction: column;
+        border-radius: 32px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .search-group {
+        width: 100%;
+    }
+
+    .search-group input {
+        width: 100%;
+    }
+
+    .btn-gold {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Car grid: 2 columns */
+    .cars-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .car-title {
+        font-size: 1.2rem;
+    }
+
+    .price-day {
+        font-size: 1.1rem;
+    }
+
+    /* Section headers */
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
+    /* Testimonials: single column */
+    .testimonial-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+
+    .testimonial-card {
+        padding: 1.2rem;
+    }
+}
+
+/* -- BREAKPOINT: 580px (mobile phones)-- */
+@media (max-width: 580px) {
+    .nav-links a {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-sub {
+        font-size: 0.9rem;
+    }
+
+    /* Car grid: 1 column for better readability */
+    .cars-grid {
+        grid-template-columns: 1fr;
+        max-width: 380px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .car-img {
+        height: 180px;
+    }
+
+    .card-content {
+        padding: 1rem;
+    }
+
+    .price-day {
+        font-size: 1rem;
+    }
+
+    .view-btn {
+        padding: 0.6rem 0;
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Dark mode toggle adjustment */
+    .dark-mode-label {
+        width: 40px;
+        height: 40px;
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .dark-mode-label i {
+        font-size: 1.1rem;
+    }
+
+    /* Footer */
+    .luxury-footer {
+        font-size: 0.75rem;
+        padding: 1.2rem;
+    }
+
+    .social-icons i {
+        font-size: 1rem;
+    }
+}
+
+/* -- BREAKPOINT: 380px (very small devices) -- */
+@media (max-width: 380px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
+    .car-title {
+        font-size: 1rem;
+    }
+
+    .car-details span {
+        font-size: 0.7rem;
+    }
+
+    .rating span {
+        font-size: 0.75rem;
+    }
+}
+
+/* -- LANDSCAPE ORIENTATION (phones) -- */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .hero-title {
+        font-size: 1.6rem;
+    }
+
+    .search-form {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .cars-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* -- TOUCH-FRIENDLY TARGETS (mobile UX) -- */
+@media (hover: none) and (pointer: coarse) {
+    .view-btn,
+    .btn-gold,
+    .nav-links a,
+    .dark-mode-label {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* -- PRINT STYLES -- */
+@media print {
+    .dark-mode-label,
+    .hero-search,
+    .social-icons {
+        display: none;
+    }
+
+    .car-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+}
