@@ -323,12 +323,95 @@ body {
 .luxury-footer {
     background: #0c0c0c;
     color: #aaa;
-    text-align: center;
-    padding: 2rem;
-    margin-top: 3rem;
+    margin-top: 4rem;
+    padding: 3rem 2rem 1rem;
 }
-.social-icons i {
-    margin: 0 8px;
-    font-size: 1.2rem;
-    cursor: pointer;
+
+.footer-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.footer-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 1.2rem auto;
+    color: #ccc;
+}
+
+/* Trust Badge */
+.trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201, 160, 61, 0.12);
+    padding: 0.5rem 1.2rem;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    color: var(--accent-gold);
+    backdrop-filter: blur(4px);
+    margin-bottom: 1rem;
+}
+
+.trust-badge i {
+    font-size: 1rem;
+}
+
+/* Social Icons */
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.footer-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    color: #ccc;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.footer-social a:hover {
+    background: var(--accent-gold);
+    color: #111;
+    transform: translateY(-3px);
+}
+
+/* Bottom Bar */
+.footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 0.5rem;
+}
+
+.footer-bottom a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-bottom a:hover {
+    color: var(--accent-gold);
+}
+
+/* Dark Mode Adjustments (uses existing CSS variables) */
+.dark-mode-checkbox:checked ~ .luxury-footer {
+    background: #050505;
+}
+
+.dark-mode-checkbox:checked ~ .luxury-footer .trust-badge {
+    background: rgba(201, 160, 61, 0.2);
 }
