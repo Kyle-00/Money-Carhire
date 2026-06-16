@@ -324,12 +324,14 @@ function initBookingPage() {
 
   // ── Date enforcement ──
   pickupDateInput?.addEventListener('change', () => {
-    if (returnDateInput && returnDateInput.value <= pickupDateInput.value) {
-      const next = new Date(pickupDateInput.value + 'T00:00:00');
-      next.setDate(next.getDate() + 1);
-      returnDateInput.value = toDateString(next);
+    if (returnDateInput) {
+      const minReturn = new Date(pickupDateInput.value + 'T00:00:00');
+      minReturn.setDate(minReturn.getDate() + 1);
+      if (returnDateInput.value <= pickupDateInput.value) {
+        returnDateInput.value = toDateString(minReturn);
+      }
+      returnDateInput.min = toDateString(minReturn);
     }
-    if (returnDateInput) returnDateInput.min = pickupDateInput.value;
     updateReceipt();
   });
   returnDateInput?.addEventListener('change', () => {
@@ -338,6 +340,7 @@ function initBookingPage() {
       const next = new Date(pickupDateInput.value + 'T00:00:00');
       next.setDate(next.getDate() + 1);
       returnDateInput.value = toDateString(next);
+      returnDateInput.min = toDateString(next);
     }
     updateReceipt();
   });
@@ -346,12 +349,12 @@ function initBookingPage() {
 
   // ── Live Receipt ──
   const LOCATION_LABELS = {
-    kiambu:   'Nairobi – Kiambu Rd',
-    westlands:'Nairobi – Westlands',
-    cbd:      'Nairobi – CBD',
+    kiambu:   'Nairobi - Kiambu Rd',
+    westlands:'Nairobi - Westlands',
+    cbd:      'Nairobi - CBD',
     jkia:     'JKIA Airport',
     karen:    'Karen',
-    mombasa:  'Mombasa – Bamburi',
+    mombasa:  'Mombasa - Bamburi',
   };
 
   function updateReceipt() {
