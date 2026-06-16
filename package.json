@@ -7,14 +7,22 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Kyle-00/money-carhire.git"
   },
-  "keywords": ["car rental", "Nairobi", "luxury cars"],
+  "keywords": [
+    "car rental",
+    "Nairobi",
+    "luxury cars"
+  ],
   "author": "Money Carhire",
   "license": "MIT",
   "devDependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.4.1"
   }
 }
