@@ -207,6 +207,23 @@
         }
         .receipt-feature i { color: var(--accent-gold); width: 16px; }
 
+        /* Availability status in receipt */
+        .availability-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .availability-status.available {
+            background: #27ae60;
+            color: #fff;
+        }
+        .availability-status.unavailable {
+            background: #e74c3c;
+            color: #fff;
+        }
+
         /* Success state */
         .booking-success {
             display: none;
@@ -330,16 +347,16 @@
                         <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
                         <select id="vehicleSelect" name="vehicle">
                             <option value="">— Choose your vehicle —</option>
-                            <option value="Mercedes G-Wagon|70000|suv">Mercedes G-Wagon — KSh 70,000/day</option>
-                            <option value="BMW X6|40000|suv">BMW X6 — KSh 40,000/day</option>
-                            <option value="Range Rover Sport|50000|suv">Range Rover Sport — KSh 50,000/day</option>
-                            <option value="Mercedes Benz E350|10500|sedan">Mercedes Benz E350 — KSh 10,500/day</option>
-                            <option value="Audi A5|15500|sedan">Audi A5 — KSh 15,500/day</option>
-                            <option value="Mazda CX-5|7000|suv">Mazda CX-5 — KSh 7,000/day</option>
-                            <option value="Toyota Mark X|6500|sedan">Toyota Mark X — KSh 6,500/day</option>
-                            <option value="Toyota Fielder|4500|economy">Toyota Fielder — KSh 4,500/day</option>
-                            <option value="Mazda Axela|4500|economy">Mazda Axela — KSh 4,500/day</option>
-                            <option value="Mazda Demio|3500|economy">Mazda Demio — KSh 3,500/day</option>
+                            <option value="Mercedes G-Wagon|70000|suv|true">Mercedes G-Wagon — KSh 70,000/day</option>
+                            <option value="BMW X6|40000|suv|false">BMW X6 — KSh 40,000/day</option>
+                            <option value="Range Rover Sport|50000|suv|true">Range Rover Sport — KSh 50,000/day</option>
+                            <option value="Mercedes Benz E350|10500|sedan|true">Mercedes Benz E350 — KSh 10,500/day</option>
+                            <option value="Audi A5|15500|sedan|true">Audi A5 — KSh 15,500/day</option>
+                            <option value="Mazda CX-5|7000|suv|false">Mazda CX-5 — KSh 7,000/day</option>
+                            <option value="Toyota Mark X|6500|sedan|true">Toyota Mark X — KSh 6,500/day</option>
+                            <option value="Toyota Fielder|4500|economy|true">Toyota Fielder — KSh 4,500/day</option>
+                            <option value="Mazda Axela|4500|economy|true">Mazda Axela — KSh 4,500/day</option>
+                            <option value="Mazda Demio|3500|economy|true">Mazda Demio — KSh 3,500/day</option>
                         </select>
                         <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
                     </div>
@@ -408,6 +425,12 @@
                     <div class="receipt-line">
                         <span class="label"><i class="fas fa-shield-alt" style="margin-right:6px;color:var(--accent-gold);"></i>Insurance & Taxes</span>
                         <span class="value" style="color:#27ae60;">Included</span>
+                    </div>
+
+                    <!-- Availability status -->
+                    <div class="receipt-line" id="availabilityLine">
+                        <span class="label"><i class="fas fa-check-circle" style="margin-right:6px;color:var(--accent-gold);"></i>Availability</span>
+                        <span class="value" id="rcAvailability">—</span>
                     </div>
 
                     <hr class="receipt-divider">
