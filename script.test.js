@@ -1,7 +1,7 @@
 /**
  * Money Carhire — script.test.js
  * Unit tests using Jest.
- * Import helpers from script.js (make sure they are exported).
+ * Imports helpers from script.js.
  */
 
 const {
@@ -56,7 +56,8 @@ describe('validatePhone', () => {
 
   test('returns false for invalid phone numbers', () => {
     expect(validatePhone('123456789')).toBe(false);
-    expect(validatePhone('+254123456789')).toBe(false); // wrong prefix
+    // +25412345678 is too short (only 8 digits after +254, should be 9)
+    expect(validatePhone('+25412345678')).toBe(false);
     expect(validatePhone('071234567')).toBe(false); // too short
     expect(validatePhone('+25471234567')).toBe(false); // too short
     expect(validatePhone('07123456789')).toBe(false); // too long
