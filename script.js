@@ -617,28 +617,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Make helpers available globally for testing (in browser)
 // In Node.js/Jest, you'd export them instead.
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    formatKSh,
-    daysBetween,
-    validateEmail,
-    validatePhone,
-    getQueryParams,
-    toDateString,
-    formatDateDisplay,
-    initDarkMode,
-    initNavbar,
-    initHeroDate,
-    initFleetFilter,
-    initScrollReveal,
-    initCounters,
-    initTestimonialSlider,
-    initBackToTop,
-    showToast,
-    initBookingPage,
-    initBookingForm,
-    initContactForm,
-    initLazyImages,
-    initFooterYear
-  };
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initDarkMode();
+    initNavbar();
+    initHeroDate();
+    initFleetFilter();
+    initScrollReveal();
+    initCounters();
+    initTestimonialSlider();
+    initBackToTop();
+    initBookingPage();
+    initBookingForm();
+    initContactForm();
+    initLazyImages();
+    initFooterYear();
+  });
 }
