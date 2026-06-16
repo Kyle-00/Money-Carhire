@@ -78,6 +78,22 @@ button {
     cursor: pointer;
     font-family: inherit;
 }
+       .filter-bar .search-wrap {
+            margin-left: 0;
+            flex: 1;
+        }
+
+        .filter-bar .search-wrap input {
+            width: 100%;
+        }
+
+        .footer-logo {
+            margin-bottom: 1rem;
+        }
+
+        .no-results {
+            display: none;
+        }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
