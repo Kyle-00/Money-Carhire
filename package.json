@@ -1,0 +1,19 @@
+{
+  "name": "money-carhire",
+  "version": "1.0.0",
+  "description": "Premium car rental website for Nairobi, Kenya.",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kyle-00/money-carhire.git"
+  },
+  "keywords": ["car rental", "Nairobi", "luxury cars"],
+  "author": "Money Carhire",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
