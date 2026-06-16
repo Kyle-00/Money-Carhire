@@ -1,32 +1,15 @@
 /**
  * Money Carhire — script.js
  * ══════════════════════════════════════════
- * Features:
- *  1. Dark Mode (localStorage persistence)
- *  2. Navbar scroll effect + hamburger menu
- *  3. Hero date default
- *  4. Fleet filter (only search, no category buttons)
- *  5. Scroll reveal animations (Intersection Observer)
- *  6. Animated counters (Intersection Observer)
- *  7. Testimonial auto-slider with dots
- *  8. Back-to-top button
- *  9. Toast notifications
- * 10. URL parameter parser → pre-fills booking form
- * 11. Live booking receipt calculator + availability check
- * 12. Booking form validation + submission
- * 13. Contact form validation + submission
- * 14. Lazy image loading (Intersection Observer)
- * 15. Dynamic footer copyright year
- * ══════════════════════════════════════════
+ * Works both in browser (DOM) and Node.js (for Jest testing).
+ * All helper functions are exported for testing.
  */
 
 'use strict';
 
 /* ───────────────────────────────────────────
-   Helpers (exported for testing)
+   Helpers (pure, no DOM)
 ─────────────────────────────────────────── */
-const $ = (sel, ctx = document) => ctx.querySelector(sel);
-const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 function formatKSh(amount) {
   return 'KSh ' + Number(amount).toLocaleString('en-KE');
@@ -62,8 +45,12 @@ function formatDateDisplay(dateStr) {
 }
 
 /* ───────────────────────────────────────────
-   1. Dark Mode
+   DOM‑dependent functions (only used in browser)
 ─────────────────────────────────────────── */
+
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
 function initDarkMode() {
   const btn  = $('#darkModeBtn');
   const icon = $('#darkModeIcon');
@@ -85,9 +72,6 @@ function initDarkMode() {
   });
 }
 
-/* ───────────────────────────────────────────
-   2. Navbar: scroll shadow + hamburger
-─────────────────────────────────────────── */
 function initNavbar() {
   const navbar    = $('#navbar');
   const hamburger = $('#hamburger');
@@ -119,9 +103,6 @@ function initNavbar() {
   }
 }
 
-/* ───────────────────────────────────────────
-   3. Hero date default
-─────────────────────────────────────────── */
 function initHeroDate() {
   const heroDate = $('#heroDate');
   if (!heroDate) return;
@@ -131,9 +112,6 @@ function initHeroDate() {
   heroDate.min   = toDateString(new Date());
 }
 
-/* ───────────────────────────────────────────
-   4. Fleet filter: only search (no category buttons)
-─────────────────────────────────────────── */
 function initFleetFilter() {
   const searchInput = $('#fleetSearch');
   const cards       = $$('.car-card');
@@ -157,9 +135,6 @@ function initFleetFilter() {
   searchInput.addEventListener('input', applyFilters);
 }
 
-/* ───────────────────────────────────────────
-   5. Scroll reveal
-─────────────────────────────────────────── */
 function initScrollReveal() {
   const elements = $$('.reveal');
   if (!elements.length || !('IntersectionObserver' in window)) {
@@ -180,9 +155,6 @@ function initScrollReveal() {
   elements.forEach(el => observer.observe(el));
 }
 
-/* ───────────────────────────────────────────
-   6. Animated counters
-─────────────────────────────────────────── */
 function initCounters() {
   const counters = $$('.stat-number');
   if (!counters.length || !('IntersectionObserver' in window)) return;
@@ -216,9 +188,6 @@ function initCounters() {
   counters.forEach(c => observer.observe(c));
 }
 
-/* ───────────────────────────────────────────
-   7. Testimonial slider
-─────────────────────────────────────────── */
 function initTestimonialSlider() {
   const track     = $('#testimonialTrack');
   const dotsWrap  = $('#sliderDots');
@@ -264,9 +233,6 @@ function initTestimonialSlider() {
   }, { passive: true });
 }
 
-/* ───────────────────────────────────────────
-   8. Back to top
-─────────────────────────────────────────── */
 function initBackToTop() {
   const btn = $('#backToTop');
   if (!btn) return;
@@ -276,9 +242,6 @@ function initBackToTop() {
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-/* ───────────────────────────────────────────
-   9. Toast notifications
-─────────────────────────────────────────── */
 function showToast(message, type = 'success') {
   const toast = $('#toast');
   if (!toast) return;
@@ -288,17 +251,13 @@ function showToast(message, type = 'success') {
   toast._timer = setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-/* ───────────────────────────────────────────
-   10 + 11. Booking: URL params + live receipt + availability
-─────────────────────────────────────────── */
 function initBookingPage() {
   const vehicleSelect   = $('#vehicleSelect');
   const pickupDateInput = $('#pickupDate');
   const returnDateInput = $('#returnDate');
   const locationSelect  = $('#pickupLocation');
-  if (!vehicleSelect) return;  // Not on booking page
+  if (!vehicleSelect) return;
 
-  // ── Set default dates ──
   const today    = new Date();
   const pickup   = new Date(today); pickup.setDate(today.getDate() + 1);
   const ret      = new Date(today); ret.setDate(today.getDate() + 4);
@@ -312,7 +271,6 @@ function initBookingPage() {
     returnDateInput.value = toDateString(ret);
   }
 
-  // ── Pre-fill from URL params ──
   const params = getQueryParams();
   if (params.car) {
     $$('#vehicleSelect option').forEach(opt => {
@@ -322,16 +280,13 @@ function initBookingPage() {
     });
   }
 
-  // ── Date enforcement ──
   pickupDateInput?.addEventListener('change', () => {
-    if (returnDateInput) {
-      const minReturn = new Date(pickupDateInput.value + 'T00:00:00');
-      minReturn.setDate(minReturn.getDate() + 1);
-      if (returnDateInput.value <= pickupDateInput.value) {
-        returnDateInput.value = toDateString(minReturn);
-      }
-      returnDateInput.min = toDateString(minReturn);
+    if (returnDateInput && returnDateInput.value <= pickupDateInput.value) {
+      const next = new Date(pickupDateInput.value + 'T00:00:00');
+      next.setDate(next.getDate() + 1);
+      returnDateInput.value = toDateString(next);
     }
+    if (returnDateInput) returnDateInput.min = pickupDateInput.value;
     updateReceipt();
   });
   returnDateInput?.addEventListener('change', () => {
@@ -340,21 +295,19 @@ function initBookingPage() {
       const next = new Date(pickupDateInput.value + 'T00:00:00');
       next.setDate(next.getDate() + 1);
       returnDateInput.value = toDateString(next);
-      returnDateInput.min = toDateString(next);
     }
     updateReceipt();
   });
   vehicleSelect?.addEventListener('change', updateReceipt);
   locationSelect?.addEventListener('change', updateReceipt);
 
-  // ── Live Receipt ──
   const LOCATION_LABELS = {
-    kiambu:   'Nairobi - Kiambu Rd',
-    westlands:'Nairobi - Westlands',
-    cbd:      'Nairobi - CBD',
+    kiambu:   'Nairobi – Kiambu Rd',
+    westlands:'Nairobi – Westlands',
+    cbd:      'Nairobi – CBD',
     jkia:     'JKIA Airport',
     karen:    'Karen',
-    mombasa:  'Mombasa - Bamburi',
+    mombasa:  'Mombasa – Bamburi',
   };
 
   function updateReceipt() {
@@ -381,12 +334,11 @@ function initBookingPage() {
       return;
     }
 
-    // Parse: "Name|price|category|available"
     const parts = selVal.split('|');
     const name = parts[0];
     const dailyRate = parseInt(parts[1], 10) || 0;
     const category = parts[2] || '';
-    const available = parts[3] === 'true'; // boolean
+    const available = parts[3] === 'true';
 
     const pickup    = pickupDateInput?.value;
     const ret       = returnDateInput?.value;
@@ -406,7 +358,6 @@ function initBookingPage() {
     if (rcDays)        rcDays.textContent        = days > 0 ? days + (days === 1 ? ' day' : ' days') : '—';
     if (rcLocation)    rcLocation.textContent    = locLabel;
 
-    // Availability
     if (rcAvailability) {
       if (days > 0 && available) {
         rcAvailability.innerHTML = '<span class="availability-status available">Available</span>';
@@ -418,7 +369,6 @@ function initBookingPage() {
       }
     }
 
-    // Calculation line
     if (rcCalcLabel) rcCalcLabel.textContent = days > 0
       ? formatKSh(dailyRate) + ' × ' + days + (days === 1 ? ' day' : ' days')
       : 'Select dates above';
@@ -433,12 +383,9 @@ function initBookingPage() {
     }
   }
 
-  updateReceipt(); // initial
+  updateReceipt();
 }
 
-/* ───────────────────────────────────────────
-   12. Booking form validation + submission
-─────────────────────────────────────────── */
 function initBookingForm() {
   const form = $('#bookingForm');
   if (!form) return;
@@ -471,7 +418,6 @@ function initBookingForm() {
     if (setError('pickupLocation','errLocation', !loc)) hasError = true;
     if (setError('vehicleSelect', 'errVehicle',  !vehicle)) hasError = true;
 
-    // Additional check: vehicle availability for the dates
     if (!hasError && vehicle) {
       const parts = vehicle.split('|');
       const available = parts[3] === 'true';
@@ -513,9 +459,6 @@ function initBookingForm() {
   });
 }
 
-/* ───────────────────────────────────────────
-   13. Contact form validation + submission
-─────────────────────────────────────────── */
 function initContactForm() {
   const form = $('#contactForm');
   if (!form) return;
@@ -564,9 +507,6 @@ function initContactForm() {
   });
 }
 
-/* ───────────────────────────────────────────
-   14. Lazy image loading
-─────────────────────────────────────────── */
 function initLazyImages() {
   const images = $$('img[data-src]');
   if (!images.length || !('IntersectionObserver' in window)) {
@@ -587,9 +527,6 @@ function initLazyImages() {
   images.forEach(img => observer.observe(img));
 }
 
-/* ───────────────────────────────────────────
-   15. Dynamic footer year
-─────────────────────────────────────────── */
 function initFooterYear() {
   $$('#footerYear').forEach(el => {
     el.textContent = new Date().getFullYear();
@@ -597,26 +534,8 @@ function initFooterYear() {
 }
 
 /* ───────────────────────────────────────────
-   Bootstrap — run everything on DOM ready
+   Bootstrap – only in browser environment
 ─────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  initDarkMode();
-  initNavbar();
-  initHeroDate();
-  initFleetFilter();
-  initScrollReveal();
-  initCounters();
-  initTestimonialSlider();
-  initBackToTop();
-  initBookingPage();
-  initBookingForm();
-  initContactForm();
-  initLazyImages();
-  initFooterYear();
-});
-
-// Make helpers available globally for testing (in browser)
-// In Node.js/Jest, you'd export them instead.
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
@@ -633,4 +552,34 @@ if (typeof document !== 'undefined') {
     initLazyImages();
     initFooterYear();
   });
+}
+
+/* ───────────────────────────────────────────
+   Export helpers for Node.js (Jest)
+─────────────────────────────────────────── */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    formatKSh,
+    daysBetween,
+    validateEmail,
+    validatePhone,
+    getQueryParams,
+    toDateString,
+    formatDateDisplay,
+    // Also export DOM functions if you ever need to test them
+    initDarkMode,
+    initNavbar,
+    initHeroDate,
+    initFleetFilter,
+    initScrollReveal,
+    initCounters,
+    initTestimonialSlider,
+    initBackToTop,
+    showToast,
+    initBookingPage,
+    initBookingForm,
+    initContactForm,
+    initLazyImages,
+    initFooterYear
+  };
 }
