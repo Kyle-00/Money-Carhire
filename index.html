@@ -96,23 +96,20 @@
             <p>Hand-picked sedans &amp; luxury SUVs in Nairobi</p>
         </div>
 
-        <!-- Filter Bar -->
+        <!-- Filter Bar (only search) -->
         <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="suv">SUV</button>
-            <button class="filter-btn" data-filter="sedan">Sedan</button>
-            <button class="filter-btn" data-filter="economy">Economy</button>
-            <div class="search-wrap">
+            <div class="search-wrap" style="margin-left:0; flex:1;">
                 <i class="fas fa-search"></i>
-                <input type="text" id="fleetSearch" placeholder="Search cars…">
+                <input type="text" id="fleetSearch" placeholder="Search cars…" style="width:100%;">
             </div>
         </div>
 
         <div class="cars-grid" id="carsGrid">
 
             <!-- Car 1: Mercedes G-Wagon -->
-            <div class="car-card reveal" data-category="suv">
+            <div class="car-card reveal" data-category="suv" data-available="true">
                 <div class="car-badge">Most Popular</div>
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/G-wagon.jpg" src="assets/images/G-wagon.jpg" alt="Mercedes G-Wagon" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Mercedes G-Wagon</div>
@@ -130,8 +127,9 @@
                 </div>
             </div>
 
-            <!-- Car 2: BMW X6 -->
-            <div class="car-card reveal" data-category="suv">
+            <!-- Car 2: BMW X6 (unavailable) -->
+            <div class="car-card reveal" data-category="suv" data-available="false">
+                <span class="availability-badge unavailable">Currently Booked</span>
                 <img class="car-img" data-src="assets/images/BMW X6.jpg" src="assets/images/BMW X6.jpg" alt="BMW X6" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">BMW X6</div>
@@ -150,7 +148,8 @@
             </div>
 
             <!-- Car 3: Range Rover Sport -->
-            <div class="car-card reveal" data-category="suv">
+            <div class="car-card reveal" data-category="suv" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/range roverr sport.webp" src="assets/images/range roverr sport.webp" alt="Range Rover Sport" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Range Rover Sport</div>
@@ -169,7 +168,8 @@
             </div>
 
             <!-- Car 4: Mercedes Benz E350 -->
-            <div class="car-card reveal" data-category="sedan">
+            <div class="car-card reveal" data-category="sedan" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/benz E350.jpg" src="assets/images/benz E350.jpg" alt="Mercedes E350" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Mercedes Benz E350</div>
@@ -188,7 +188,8 @@
             </div>
 
             <!-- Car 5: Audi A5 -->
-            <div class="car-card reveal" data-category="sedan">
+            <div class="car-card reveal" data-category="sedan" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/audi a5.jpg" src="assets/images/audi a5.jpg" alt="Audi A5" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Audi A5</div>
@@ -207,7 +208,8 @@
             </div>
 
             <!-- Car 6: Mazda CX-5 -->
-            <div class="car-card reveal" data-category="suv">
+            <div class="car-card reveal" data-category="suv" data-available="false">
+                <span class="availability-badge unavailable">Currently Booked</span>
                 <img class="car-img" data-src="assets/images/mazda cx5.jpg" src="assets/images/mazda cx5.jpg" alt="Mazda CX-5" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Mazda CX-5</div>
@@ -226,7 +228,8 @@
             </div>
 
             <!-- Car 7: Toyota Mark X -->
-            <div class="car-card reveal" data-category="sedan">
+            <div class="car-card reveal" data-category="sedan" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/mark x.jpg" src="assets/images/mark x.jpg" alt="Toyota Mark X" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Toyota Mark X</div>
@@ -245,7 +248,8 @@
             </div>
 
             <!-- Car 8: Toyota Fielder -->
-            <div class="car-card reveal" data-category="economy">
+            <div class="car-card reveal" data-category="economy" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/toyota fielder.jpg" src="assets/images/toyota feilder.jpg" alt="Toyota Fielder" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Toyota Fielder</div>
@@ -264,7 +268,8 @@
             </div>
 
             <!-- Car 9: Mazda Axela -->
-            <div class="car-card reveal" data-category="economy">
+            <div class="car-card reveal" data-category="economy" data-available="true">
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/mazda axela.jpg" src="assets/images/mazda axela.jpg" alt="Mazda Axela" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Mazda Axela</div>
@@ -283,8 +288,9 @@
             </div>
 
             <!-- Car 10: Mazda Demio -->
-            <div class="car-card reveal" data-category="economy">
+            <div class="car-card reveal" data-category="economy" data-available="true">
                 <div class="car-badge car-badge--green">Best Value</div>
+                <span class="availability-badge available">Available</span>
                 <img class="car-img" data-src="assets/images/mazda demio.jpg" src="assets/images/toyota demio.jpg" alt="Mazda Demio" loading="lazy">
                 <div class="card-content">
                     <div class="car-title">Mazda Demio</div>
