@@ -145,6 +145,9 @@
         .receipt-line .label { color: var(--text-secondary); }
         .receipt-line .value { font-weight: 600; }
         .receipt-line .value.highlight { color: var(--accent-gold); }
+        .receipt-line .label i { margin-right: 6px; color: var(--accent-gold); }
+        #receiptDetails { display: none; }
+        .receipt-included { color: #27ae60; }
 
         .receipt-divider {
             border: none;
@@ -244,12 +247,19 @@
         .booking-success h3 { font-size: 1.4rem; margin-bottom: 0.5rem; }
         .booking-success p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem; }
 
+        #submitBtn {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
         @media (max-width: 900px) {
             .booking-grid { grid-template-columns: 1fr; }
             .booking-hero h1 { font-size: 2rem; }
             .receipt-card { position: static; }
             .form-row { grid-template-columns: 1fr; }
         }
+        /* Booking form small helpers */
+        .optional-note { font-weight: 400; opacity: .7; }
     </style>
 </head>
 <body>
@@ -362,11 +372,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span style="font-weight:400;opacity:.7">(optional)</span></label>
+                        <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
                         <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival…"></textarea>
                     </div>
 
-                    <button type="submit" class="btn-gold" id="submitBtn" style="width:100%; margin-top:0.5rem;">
+                    <button type="submit" class="btn-gold" id="submitBtn">
                         <i class="fas fa-paper-plane"></i> Submit Booking Request
                     </button>
                 </form>
@@ -396,40 +406,40 @@
                 </div>
 
                 <!-- Filled receipt (hidden until user selects) -->
-                <div id="receiptDetails" style="display:none;">
+                <div id="receiptDetails">
                     <div class="receipt-car-info">
                         <div class="receipt-car-name" id="rcCarName">—</div>
                         <div class="receipt-car-meta" id="rcCarCategory">—</div>
                     </div>
 
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-tag" style="margin-right:6px;color:var(--accent-gold);"></i>Daily Rate</span>
+                        <span class="label"><i class="fas fa-tag"></i>Daily Rate</span>
                         <span class="value" id="rcDailyRate">—</span>
                     </div>
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-calendar" style="margin-right:6px;color:var(--accent-gold);"></i>Pickup Date</span>
+                        <span class="label"><i class="fas fa-calendar"></i>Pickup Date</span>
                         <span class="value" id="rcPickupDate">—</span>
                     </div>
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-calendar-check" style="margin-right:6px;color:var(--accent-gold);"></i>Return Date</span>
+                        <span class="label"><i class="fas fa-calendar-check"></i>Return Date</span>
                         <span class="value" id="rcReturnDate">—</span>
                     </div>
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-clock" style="margin-right:6px;color:var(--accent-gold);"></i>Number of Days</span>
+                        <span class="label"><i class="fas fa-clock"></i>Number of Days</span>
                         <span class="value highlight" id="rcDays">—</span>
                     </div>
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-map-pin" style="margin-right:6px;color:var(--accent-gold);"></i>Pickup Location</span>
+                        <span class="label"><i class="fas fa-map-pin"></i>Pickup Location</span>
                         <span class="value" id="rcLocation">—</span>
                     </div>
                     <div class="receipt-line">
-                        <span class="label"><i class="fas fa-shield-alt" style="margin-right:6px;color:var(--accent-gold);"></i>Insurance & Taxes</span>
-                        <span class="value" style="color:#27ae60;">Included</span>
+                        <span class="label"><i class="fas fa-shield-alt"></i>Insurance & Taxes</span>
+                        <span class="value receipt-included">Included</span>
                     </div>
 
                     <!-- Availability status -->
                     <div class="receipt-line" id="availabilityLine">
-                        <span class="label"><i class="fas fa-check-circle" style="margin-right:6px;color:var(--accent-gold);"></i>Availability</span>
+                        <span class="label"><i class="fas fa-check-circle"></i>Availability</span>
                         <span class="value" id="rcAvailability">—</span>
                     </div>
 
