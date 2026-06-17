@@ -1,497 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Money Carhire | Complete Your Booking</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="responsive.css">
-    <style>
-        /* ── Booking page specific styles ── */
-        .booking-hero {
-            background: linear-gradient(135deg, #000000, #2a2a2a), url(assets/images/booking\ background.jpg) center/cover no-repeat;
-            background-blend-mode: overlay;
-            min-height: 35vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-        }
-        .booking-hero .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
-        .booking-hero .hero-content { position: relative; z-index: 2; padding: 2rem; }
-        .booking-hero h1 { font-size: 3rem; color: white; }
-        .booking-hero p { color: #e0e0e0; margin-top: 0.5rem; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Money Carhire | Complete Your Booking</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="responsive.css">
+  
+  <!-- EmailJS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+  
+  <style>
+    .booking-hero {
+      background: linear-gradient(135deg, #000000, #2a2a2a), url(assets/images/booking\ background.jpg) center/cover no-repeat;
+      background-blend-mode: overlay;
+      min-height: 35vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+    .booking-hero .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
+    .booking-hero .hero-content { position: relative; z-index: 2; padding: 2rem; }
+    .booking-hero h1 { font-size: 3rem; color: white; }
+    .booking-hero p { color: #e0e0e0; margin-top: 0.5rem; }
 
-        .booking-main {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 1.5rem;
-        }
-        .booking-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2.5rem;
-            align-items: start;
-        }
+    .booking-main {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+    .booking-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .booking-form-card {
+      background: var(--bg-surface);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--glass-border);
+    }
+    .booking-form-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent-gold);
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .form-group label i { margin-right: 6px; color: var(--accent-gold); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--glass-border);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+    .form-group input.error,
+    .form-group select.error { border-color: #e74c3c; }
+    .form-error-msg {
+      font-size: 0.78rem;
+      color: #e74c3c;
+      margin-top: 4px;
+      display: none;
+    }
+    .form-group textarea { border-radius: 12px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-        /* Form Card */
-        .booking-form-card {
-            background: var(--bg-surface);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--glass-border);
-        }
-        .booking-form-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent-gold);
-        }
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        .form-group label i { margin-right: 6px; color: var(--accent-gold); }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 11px 16px;
-            border-radius: 10px;
-            border: 2px solid var(--glass-border);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-gold);
-        }
-        .form-group input.error,
-        .form-group select.error { border-color: #e74c3c; }
-        .form-error-msg {
-            font-size: 0.78rem;
-            color: #e74c3c;
-            margin-top: 4px;
-            display: none;
-        }
-        .form-group textarea { border-radius: 12px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .receipt-card {
+      background: var(--bg-surface);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      border: 2px solid var(--accent-gold);
+      position: sticky;
+      top: 90px;
+    }
+    .receipt-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--glass-border);
+    }
+    .receipt-header i { color: var(--accent-gold); font-size: 1.3rem; }
+    .receipt-header h3 { font-size: 1.2rem; }
+    .receipt-logo {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
 
-        /* Receipt Card */
-        .receipt-card {
-            background: var(--bg-surface);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            border: 2px solid var(--accent-gold);
-            position: sticky;
-            top: 90px;
-        }
-        .receipt-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px dashed var(--glass-border);
-        }
-        .receipt-header i { color: var(--accent-gold); font-size: 1.3rem; }
-        .receipt-header h3 { font-size: 1.2rem; }
-        .receipt-logo {
-            margin-left: auto;
-            font-size: 0.75rem;
-            color: var(--accent-gold);
-            font-weight: 700;
-            letter-spacing: 0.05em;
-        }
+    .receipt-car-info {
+      background: linear-gradient(135deg, rgba(201,160,61,0.1), rgba(201,160,61,0.05));
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(201,160,61,0.2);
+    }
+    .receipt-car-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 0.25rem;
+    }
+    .receipt-car-meta { font-size: 0.8rem; color: var(--text-secondary); }
 
-        .receipt-car-info {
-            background: linear-gradient(135deg, rgba(201,160,61,0.1), rgba(201,160,61,0.05));
-            border-radius: 14px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(201,160,61,0.2);
-        }
-        .receipt-car-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-gold);
-            margin-bottom: 0.25rem;
-        }
-        .receipt-car-meta { font-size: 0.8rem; color: var(--text-secondary); }
+    .receipt-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .receipt-line:last-of-type { border-bottom: none; }
+    .receipt-line .label { color: var(--text-secondary); }
+    .receipt-line .value { font-weight: 600; }
+    .receipt-line .value.highlight { color: var(--accent-gold); }
+    .receipt-line .label i { margin-right: 6px; color: var(--accent-gold); }
+    .receipt-included { color: #27ae60; }
 
-        .receipt-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.6rem 0;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        .receipt-line:last-of-type { border-bottom: none; }
-        .receipt-line .label { color: var(--text-secondary); }
-        .receipt-line .value { font-weight: 600; }
-        .receipt-line .value.highlight { color: var(--accent-gold); }
-        .receipt-line .label i { margin-right: 6px; color: var(--accent-gold); }
-        #receiptDetails { display: none; }
-        .receipt-included { color: #27ae60; }
+    .receipt-divider {
+      border: none;
+      border-top: 2px dashed var(--accent-gold);
+      margin: 1.2rem 0;
+    }
 
-        .receipt-divider {
-            border: none;
-            border-top: 2px dashed var(--accent-gold);
-            margin: 1.2rem 0;
-        }
+    .receipt-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+    }
+    .receipt-total .total-label {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .receipt-total .total-amount {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      transition: all 0.3s ease;
+    }
+    .receipt-total .total-amount.pulse {
+      transform: scale(1.08);
+    }
 
-        .receipt-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 0;
-        }
-        .receipt-total .total-label {
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .receipt-total .total-amount {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--accent-gold);
-            transition: all 0.3s ease;
-        }
-        .receipt-total .total-amount.pulse {
-            transform: scale(1.08);
-        }
+    .receipt-placeholder {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--text-secondary);
+    }
+    .receipt-placeholder i { font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block; }
+    .receipt-placeholder p { font-size: 0.85rem; }
 
-        .receipt-placeholder {
-            text-align: center;
-            padding: 2rem 0;
-            color: var(--text-secondary);
-        }
-        .receipt-placeholder i { font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block; }
-        .receipt-placeholder p { font-size: 0.85rem; }
+    .receipt-note {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: var(--bg-primary);
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
 
-        .receipt-note {
-            margin-top: 1rem;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            background: var(--bg-primary);
-            padding: 0.6rem 0.8rem;
-            border-radius: 8px;
-            line-height: 1.5;
-        }
+    .receipt-features {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .receipt-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .receipt-feature i { color: var(--accent-gold); width: 16px; }
 
-        .receipt-features {
-            margin-top: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .receipt-feature {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-        }
-        .receipt-feature i { color: var(--accent-gold); width: 16px; }
+    .availability-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .availability-status.available {
+      background: #27ae60;
+      color: #fff;
+    }
+    .availability-status.unavailable {
+      background: #e74c3c;
+      color: #fff;
+    }
 
-        /* Availability status in receipt */
-        .availability-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-        .availability-status.available {
-            background: #27ae60;
-            color: #fff;
-        }
-        .availability-status.unavailable {
-            background: #e74c3c;
-            color: #fff;
-        }
+    .booking-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+    .booking-success .success-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(39,174,96,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+    .booking-success .success-icon i { font-size: 2rem; color: #27ae60; }
+    .booking-success h3 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .booking-success p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem; }
 
-        /* Success state */
-        .booking-success {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-        .booking-success .success-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: rgba(39,174,96,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.2rem;
-        }
-        .booking-success .success-icon i { font-size: 2rem; color: #27ae60; }
-        .booking-success h3 { font-size: 1.4rem; margin-bottom: 0.5rem; }
-        .booking-success p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem; }
+    #submitBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
 
-        #submitBtn {
-            width: 100%;
-            margin-top: 0.5rem;
-        }
+    .optional-note { font-weight: 400; opacity: .7; }
+    #receiptDetails { display: none; }
 
-        @media (max-width: 900px) {
-            .booking-grid { grid-template-columns: 1fr; }
-            .booking-hero h1 { font-size: 2rem; }
-            .receipt-card { position: static; }
-            .form-row { grid-template-columns: 1fr; }
-        }
-        /* Booking form small helpers */
-        .optional-note { font-weight: 400; opacity: .7; }
-    </style>
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: #fff; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    .toast.show { opacity: 1; pointer-events: all; }
+    .toast.success { background: #27ae60; }
+    .toast.error { background: #e74c3c; }
+
+    @media (max-width: 900px) {
+      .booking-grid { grid-template-columns: 1fr; }
+      .booking-hero h1 { font-size: 2rem; }
+      .receipt-card { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <button class="dark-mode-btn" id="darkModeBtn" aria-label="Toggle dark mode">
-        <i class="fas fa-moon" id="darkModeIcon"></i>
-    </button>
-    <div class="toast" id="toast"></div>
+  <button class="dark-mode-btn" id="darkModeBtn" aria-label="Toggle dark mode">
+    <i class="fas fa-moon" id="darkModeIcon"></i>
+  </button>
+  <div class="toast" id="toast"></div>
 
-    <div class="page-wrapper">
+  <!-- WhatsApp Floating Button -->
+  <a href="https://wa.me/254745424341" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <div class="page-wrapper">
     <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-car-side"></i>
-                <span>Money Carhire</span>
-            </div>
-            <div class="nav-links" id="navLinks">
-                <a href="index.html">Home</a>
-                <a href="index.html#fleet">Fleet</a>
-                <a href="index.html#testimonials">Testimonials</a>
-                <a href="contact.html">Contact</a>
-                <a href="booking.html" class="active nav-reserve-btn">Reserve</a>
-            </div>
-            <div class="hamburger" id="hamburger">
-                <span></span><span></span><span></span>
-            </div>
+      <div class="nav-container">
+        <div class="logo">
+          <i class="fas fa-car-side"></i>
+          <span>Money Carhire</span>
         </div>
+        <div class="nav-links" id="navLinks">
+          <a href="index.html">Home</a>
+          <a href="index.html#fleet">Fleet</a>
+          <a href="index.html#testimonials">Testimonials</a>
+          <a href="contact.html">Contact</a>
+          <a href="booking.html" class="active nav-reserve-btn">Reserve</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
     </nav>
 
     <section class="booking-hero">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1>Secure Your Drive</h1>
-            <p>Fill in your details — our team confirms within 2 hours.</p>
-        </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1>Secure Your Drive</h1>
+        <p>Fill in your details — our team confirms within 2 hours.</p>
+      </div>
     </section>
 
     <div class="booking-main">
-        <div class="booking-grid">
+      <div class="booking-grid">
 
-            <!-- ── Booking Form ── -->
-            <div class="booking-form-card">
-                <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
-
-                <div id="bookingFormWrap">
-                <form id="bookingForm" novalidate>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="fieldName"><i class="fas fa-user"></i>Full Name</label>
-                            <input type="text" id="fieldName" name="name" placeholder="e.g., John Mwangi" autocomplete="name">
-                            <span class="form-error-msg" id="errName">Please enter your full name.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="fieldEmail"><i class="fas fa-envelope"></i>Email</label>
-                            <input type="email" id="fieldEmail" name="email" placeholder="you@example.com" autocomplete="email">
-                            <span class="form-error-msg" id="errEmail">Enter a valid email address.</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fieldPhone"><i class="fas fa-phone"></i>Phone Number</label>
-                        <input type="tel" id="fieldPhone" name="phone" placeholder="+254 7XX XXX XXX" autocomplete="tel">
-                        <span class="form-error-msg" id="errPhone">Enter a valid Kenyan number (+2547... or 07...).</span>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="pickupDate"><i class="fas fa-calendar-check"></i>Pickup Date</label>
-                            <input type="date" id="pickupDate" name="pickupDate">
-                            <span class="form-error-msg" id="errPickup">Please select a pickup date.</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="returnDate"><i class="fas fa-calendar-times"></i>Return Date</label>
-                            <input type="date" id="returnDate" name="returnDate">
-                            <span class="form-error-msg" id="errReturn">Return date must be after pickup.</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pickupLocation"><i class="fas fa-map-pin"></i>Pickup Location</label>
-                        <select id="pickupLocation" name="pickupLocation">
-                            <option value="">— Select location —</option>
-                            <option value="kiambu">Nairobi - Kiambu Rd</option>
-                            <option value="westlands">Nairobi - Westlands</option>
-                            <option value="cbd">Nairobi - CBD</option>
-                            <option value="jkia">JKIA Airport</option>
-                            <option value="karen">Karen</option>
-                            <option value="mombasa">Mombasa - Bamburi</option>
-                        </select>
-                        <span class="form-error-msg" id="errLocation">Please select a pickup location.</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
-                        <select id="vehicleSelect" name="vehicle">
-                           <option value="">— Choose your vehicle —</option>
-                           <option value="Mercedes G-Wagon|50000|suv|true">Mercedes G-Wagon — KSh 50,000/day</option>
-                           <option value="BMW X6|25000|suv|false">BMW X6 — KSh 25,000/day</option>
-                           <option value="Range Rover Sport|35000|suv|true">Range Rover Sport — KSh 35,000/day</option>
-                           <option value="Mercedes Benz E350|10500|sedan|true">Mercedes Benz E350 — KSh 10,500/day</option>
-                           <option value="Audi A5|12500|sedan|true">Audi A5 — KSh 12,500/day</option>
-                           <option value="Mazda CX-5|7000|suv|false">Mazda CX-5 — KSh 7,000/day</option>
-                           <option value="Toyota Mark X|6500|sedan|true">Toyota Mark X — KSh 6,500/day</option>
-                           <option value="Toyota Fielder|4000|economy|true">Toyota Fielder — KSh 4,000/day</option>
-                           <option value="Mazda Axela|4500|economy|true">Mazda Axela — KSh 4,500/day</option>
-                           <option value="Mazda Demio|3500|economy|true">Mazda Demio — KSh 3,500/day</option>
-                        </select>
-                        <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
-                        <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival…"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-gold" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Submit Booking Request
-                    </button>
-                </form>
+        <div class="booking-form-card">
+          <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
+          <div id="bookingFormWrap">
+            <form id="bookingForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fieldName"><i class="fas fa-user"></i>Full Name</label>
+                  <input type="text" id="fieldName" name="name" placeholder="e.g., John Mwangi" autocomplete="name">
+                  <span class="form-error-msg" id="errName">Please enter your full name.</span>
                 </div>
-
-                <!-- Success message (shown after submit) -->
-                <div class="booking-success" id="bookingSuccess">
-                    <div class="success-icon"><i class="fas fa-check"></i></div>
-                    <h3>Request Received!</h3>
-                    <p>Thank you — our team will call or email you within <strong>2 hours</strong> to confirm your booking.</p>
-                    <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> Back to Home</a>
+                <div class="form-group">
+                  <label for="fieldEmail"><i class="fas fa-envelope"></i>Email</label>
+                  <input type="email" id="fieldEmail" name="email" placeholder="you@example.com" autocomplete="email">
+                  <span class="form-error-msg" id="errEmail">Enter a valid email address.</span>
                 </div>
-            </div>
+              </div>
 
-            <!-- ── Live Receipt ── -->
-            <div class="receipt-card" id="receiptCard">
-                <div class="receipt-header">
-                    <i class="fas fa-receipt"></i>
-                    <h3>Booking Summary</h3>
-                    <span class="receipt-logo">MONEY CARHIRE</span>
+              <div class="form-group">
+                <label for="fieldPhone"><i class="fas fa-phone"></i>Phone Number</label>
+                <input type="tel" id="fieldPhone" name="phone" placeholder="+254 7XX XXX XXX" autocomplete="tel">
+                <span class="form-error-msg" id="errPhone">Enter a valid Kenyan number (+2547... or 07...).</span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pickupDate"><i class="fas fa-calendar-check"></i>Pickup Date</label>
+                  <input type="date" id="pickupDate" name="pickupDate">
+                  <span class="form-error-msg" id="errPickup">Please select a pickup date.</span>
                 </div>
-
-                <!-- Placeholder when nothing is selected yet -->
-                <div class="receipt-placeholder" id="receiptPlaceholder">
-                    <i class="fas fa-car"></i>
-                    <p>Select a vehicle and dates to see your live cost breakdown.</p>
+                <div class="form-group">
+                  <label for="returnDate"><i class="fas fa-calendar-times"></i>Return Date</label>
+                  <input type="date" id="returnDate" name="returnDate">
+                  <span class="form-error-msg" id="errReturn">Return date must be after pickup.</span>
                 </div>
+              </div>
 
-                <!-- Filled receipt (hidden until user selects) -->
-                <div id="receiptDetails">
-                    <div class="receipt-car-info">
-                        <div class="receipt-car-name" id="rcCarName">—</div>
-                        <div class="receipt-car-meta" id="rcCarCategory">—</div>
-                    </div>
+              <div class="form-group">
+                <label for="pickupLocation"><i class="fas fa-map-pin"></i>Pickup Location</label>
+                <select id="pickupLocation" name="pickupLocation">
+                  <option value="">-- Select location --</option>
+                  <option value="kiambu">Nairobi - Kiambu Rd</option>
+                  <option value="westlands">Nairobi - Westlands</option>
+                  <option value="cbd">Nairobi - CBD</option>
+                  <option value="jkia">JKIA Airport</option>
+                  <option value="karen">Karen</option>
+                  <option value="mombasa">Mombasa - Bamburi</option>
+                </select>
+                <span class="form-error-msg" id="errLocation">Please select a pickup location.</span>
+              </div>
 
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-tag"></i>Daily Rate</span>
-                        <span class="value" id="rcDailyRate">—</span>
-                    </div>
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-calendar"></i>Pickup Date</span>
-                        <span class="value" id="rcPickupDate">—</span>
-                    </div>
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-calendar-check"></i>Return Date</span>
-                        <span class="value" id="rcReturnDate">—</span>
-                    </div>
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-clock"></i>Number of Days</span>
-                        <span class="value highlight" id="rcDays">—</span>
-                    </div>
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-map-pin"></i>Pickup Location</span>
-                        <span class="value" id="rcLocation">—</span>
-                    </div>
-                    <div class="receipt-line">
-                        <span class="label"><i class="fas fa-shield-alt"></i>Insurance & Taxes</span>
-                        <span class="value receipt-included">Included</span>
-                    </div>
+              <div class="form-group">
+                <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
+                <select id="vehicleSelect" name="vehicle">
+                  <option value="">-- Choose your vehicle --</option>
+                </select>
+                <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
+              </div>
 
-                    <!-- Availability status -->
-                    <div class="receipt-line" id="availabilityLine">
-                        <span class="label"><i class="fas fa-check-circle"></i>Availability</span>
-                        <span class="value" id="rcAvailability">—</span>
-                    </div>
+              <div class="form-group">
+                <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
+                <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival..."></textarea>
+              </div>
 
-                    <hr class="receipt-divider">
+              <button type="submit" class="btn-gold" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Submit Booking Request
+              </button>
+            </form>
+          </div>
 
-                    <!-- Calculation breakdown -->
-                    <div class="receipt-line" id="rcCalcLine">
-                        <span class="label" id="rcCalcLabel">Calculation</span>
-                        <span class="value highlight" id="rcCalcValue">—</span>
-                    </div>
-
-                    <div class="receipt-total">
-                        <span class="total-label">Total Cost</span>
-                        <span class="total-amount" id="rcTotal">KSh 0</span>
-                    </div>
-
-                    <p class="receipt-note">
-                        * This is an estimate. Final confirmed amount will be sent by our team via email/SMS after your request is reviewed.
-                    </p>
-
-                    <div class="receipt-features">
-                        <div class="receipt-feature"><i class="fas fa-shield-alt"></i> Full insurance coverage included</div>
-                        <div class="receipt-feature"><i class="fas fa-headset"></i> 24/7 Nairobi concierge support</div>
-                        <div class="receipt-feature"><i class="fas fa-gas-pump"></i> Full tank on pickup</div>
-                        <div class="receipt-feature"><i class="fas fa-road"></i> Unlimited mileage within Kenya</div>
-                    </div>
-                </div>
-            </div>
-
+          <div class="booking-success" id="bookingSuccess">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h3>Request Received!</h3>
+            <p>Thank you — our team will call or email you within <strong>1 hour</strong> to confirm your booking.</p>
+            <p class="success-subtext">A confirmation email has been sent to your inbox.</p>
+            <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> Back to Home</a>
+          </div>
         </div>
+
+        <div class="receipt-card" id="receiptCard">
+          <div class="receipt-header">
+            <i class="fas fa-receipt"></i>
+            <h3>Booking Summary</h3>
+            <span class="receipt-logo">MONEY CARHIRE</span>
+          </div>
+
+          <div class="receipt-placeholder" id="receiptPlaceholder">
+            <i class="fas fa-car"></i>
+            <p>Select a vehicle and dates to see your live cost breakdown.</p>
+          </div>
+
+          <div id="receiptDetails">
+            <div class="receipt-car-info">
+              <div class="receipt-car-name" id="rcCarName">--</div>
+              <div class="receipt-car-meta" id="rcCarCategory">--</div>
+            </div>
+
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-tag"></i>Daily Rate</span>
+              <span class="value" id="rcDailyRate">--</span>
+            </div>
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-calendar"></i>Pickup Date</span>
+              <span class="value" id="rcPickupDate">--</span>
+            </div>
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-calendar-check"></i>Return Date</span>
+              <span class="value" id="rcReturnDate">--</span>
+            </div>
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-clock"></i>Number of Days</span>
+              <span class="value highlight" id="rcDays">--</span>
+            </div>
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-map-pin"></i>Pickup Location</span>
+              <span class="value" id="rcLocation">--</span>
+            </div>
+            <div class="receipt-line">
+              <span class="label"><i class="fas fa-shield-alt"></i>Insurance and Taxes</span>
+              <span class="value receipt-included">Included</span>
+            </div>
+
+            <div class="receipt-line" id="availabilityLine">
+              <span class="label"><i class="fas fa-check-circle"></i>Availability</span>
+              <span class="value" id="rcAvailability">--</span>
+            </div>
+
+            <hr class="receipt-divider">
+
+            <div class="receipt-line" id="rcCalcLine">
+              <span class="label" id="rcCalcLabel">Calculation</span>
+              <span class="value highlight" id="rcCalcValue">--</span>
+            </div>
+
+            <div class="receipt-total">
+              <span class="total-label">Total Cost</span>
+              <span class="total-amount" id="rcTotal">KSh 0</span>
+            </div>
+
+            <p class="receipt-note">
+              * This is an estimate. Final confirmed amount will be sent by our team via email or SMS after your request is reviewed.
+            </p>
+
+            <div class="receipt-features">
+              <div class="receipt-feature"><i class="fas fa-shield-alt"></i> Full insurance coverage included</div>
+              <div class="receipt-feature"><i class="fas fa-headset"></i> 24/7 Nairobi concierge support</div>
+              <div class="receipt-feature"><i class="fas fa-gas-pump"></i> Full tank on pickup</div>
+              <div class="receipt-feature"><i class="fas fa-road"></i> Unlimited mileage within Kenya</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <footer class="luxury-footer">
-        <div class="footer-container">
-            <div class="footer-col">
-                <p class="footer-description">Kenya's premier luxury car rental service. We deliver prestige, safety, and unforgettable driving experiences across Nairobi and beyond.</p>
-                <div class="trust-badge"><i class="fas fa-shield-alt"></i> 100% secure booking</div>
-                <br>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
+      <div class="footer-container">
+        <div class="footer-col">
+          <p class="footer-description">Kenya's premier luxury car rental service. We deliver prestige, safety, and unforgettable driving experiences across Nairobi and beyond.</p>
+          <div class="trust-badge"><i class="fas fa-shield-alt"></i> 100% secure booking</div>
+          <br>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+          <p class="footer-admin-link">
+            <a href="admin-login.html">Admin</a>
+          </p>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; <span id="footerYear"></span> Money Carhire. All rights reserved. | Fleet insured by Jubilee Insurance</p>
-        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="footerYear"></span> Money Carhire. All rights reserved. | Fleet insured by Jubilee Insurance</p>
+      </div>
     </footer>
-    </div>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
