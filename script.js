@@ -1,7 +1,8 @@
 /**
  * Money Carhire — script.js
- * All JavaScript separated from HTML files
- * Features: Firebase, EmailJS, WhatsApp, Booking, Admin, Fleet Management
+ * Features: Firebase, EmailJS, Booking, Admin Dashboard,
+ * Pickup Type with Delivery Fee (KSh 1,000),
+ * Real-time Chart & Quick Stats, Status Sync, and more.
  */
 
 'use strict';
@@ -19,21 +20,50 @@ const FIREBASE_CONFIG = {
   measurementId: "G-156QZDLS94"
 };
 
-// Initialize Firebase (only if not already initialized)
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
+  console.log('[OK] Firebase initialized');
+} else if (typeof firebase !== 'undefined') {
+  console.log('[INFO] Firebase already initialized');
+} else {
+  console.error('[ERROR] Firebase library not loaded');
 }
-const db = typeof firebase !== 'undefined' && firebase.firestore ? firebase.firestore() : null;
+const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+if (db) {
+  console.log('[OK] Firestore available');
+} else {
+  console.error('[ERROR] Firestore not available');
+}
 
 /* ───────────────────────────────────────────
    EmailJS Configuration
 ─────────────────────────────────────────── */
 const EMAILJS_CONFIG = {
   publicKey: 'GrwmOU4hjzqu9yLEP',
-  serviceId: 'service_4sf99gj', // Replace with your actual Service ID
+  serviceId: 'service_4sf99gj',
   customerTemplate: 'template_ho9ezeu',
-  ownerTemplate: 'template_jtnrwul'
+  ownerTemplate: 'template_jtnrwul',
+  ownerEmail: 'moneycarhire@gmail.com'
 };
+console.log('[INFO] EmailJS Config:', EMAILJS_CONFIG);
+
+// Initialize EmailJS if available
+if (typeof emailjs !== 'undefined') {
+  emailjs.init(EMAILJS_CONFIG.publicKey);
+  console.log('[OK] EmailJS initialized');
+}
+
+/* ───────────────────────────────────────────
+   Admin Configuration
+─────────────────────────────────────────── */
+const ADMIN_CONFIG = {
+  password: 'yktvwithkyle'
+};
+
+/* ───────────────────────────────────────────
+   Constants
+─────────────────────────────────────────── */
+const DELIVERY_FEE = 1000;
 
 /* ───────────────────────────────────────────
    Helpers
@@ -67,7 +97,24 @@ function toDateString(date) {
 
 function formatDateDisplay(dateStr) {
   if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T00:00:00');
+  // Handle Date objects or strings
+  let d;
+  if (typeof dateStr === 'object' && dateStr.toDate) {
+    // Firestore timestamp
+    d = dateStr.toDate();
+  } else if (typeof dateStr === 'string') {
+    // Check if it's already formatted or raw YYYY-MM-DD
+    if (dateStr.includes('-')) {
+      // YYYY-MM-DD format
+      d = new Date(dateStr + 'T00:00:00');
+    } else {
+      // Try parsing as is
+      d = new Date(dateStr);
+    }
+  } else {
+    d = new Date(dateStr);
+  }
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -80,15 +127,14 @@ function generateBookingId() {
   return result;
 }
 
-function formatPhoneForWhatsApp(phone) {
-  let cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
-  if (cleaned.startsWith('0')) {
-    cleaned = '254' + cleaned.substring(1);
+function safeParseNumber(value) {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/[^0-9.]/g, '');
+    const num = parseFloat(cleaned);
+    if (!isNaN(num)) return num;
   }
-  if (!cleaned.startsWith('254')) {
-    cleaned = '254' + cleaned;
-  }
-  return cleaned;
+  return 0;
 }
 
 /* ───────────────────────────────────────────
@@ -190,7 +236,7 @@ function showAdminToast(message, type) {
 }
 
 /* ───────────────────────────────────────────
-   Dark Mode
+   Core UI Functions
 ─────────────────────────────────────────── */
 function initDarkMode() {
   const btn = document.getElementById('darkModeBtn');
@@ -213,9 +259,6 @@ function initDarkMode() {
   });
 }
 
-/* ───────────────────────────────────────────
-   Navbar
-─────────────────────────────────────────── */
 function initNavbar() {
   const navbar = document.getElementById('navbar');
   const hamburger = document.getElementById('hamburger');
@@ -247,21 +290,14 @@ function initNavbar() {
   }
 }
 
-/* ───────────────────────────────────────────
-   Hero Date
-─────────────────────────────────────────── */
 function initHeroDate() {
   const heroDate = document.getElementById('heroDate');
   if (!heroDate) return;
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  heroDate.value = toDateString(tomorrow);
-  heroDate.min = toDateString(new Date());
+  const today = new Date();
+  heroDate.value = toDateString(today);
+  heroDate.min = toDateString(today);
 }
 
-/* ───────────────────────────────────────────
-   Fleet Filter
-─────────────────────────────────────────── */
 function initFleetFilter() {
   const searchInput = document.getElementById('fleetSearch');
   const cards = document.querySelectorAll('.car-card');
@@ -285,11 +321,9 @@ function initFleetFilter() {
   }
 
   searchInput.addEventListener('input', applyFilters);
+  applyFilters();
 }
 
-/* ───────────────────────────────────────────
-   Scroll Reveal
-─────────────────────────────────────────── */
 function initScrollReveal() {
   const elements = document.querySelectorAll('.reveal');
   if (!elements.length || !('IntersectionObserver' in window)) {
@@ -312,9 +346,6 @@ function initScrollReveal() {
   elements.forEach(function(el) { observer.observe(el); });
 }
 
-/* ───────────────────────────────────────────
-   Counters
-─────────────────────────────────────────── */
 function initCounters() {
   const counters = document.querySelectorAll('.stat-number');
   if (!counters.length || !('IntersectionObserver' in window)) return;
@@ -348,9 +379,6 @@ function initCounters() {
   counters.forEach(function(c) { observer.observe(c); });
 }
 
-/* ───────────────────────────────────────────
-   Testimonial Slider
-─────────────────────────────────────────── */
 function initTestimonialSlider() {
   const track = document.getElementById('testimonialTrack');
   const dotsWrap = document.getElementById('sliderDots');
@@ -405,9 +433,6 @@ function initTestimonialSlider() {
   }, { passive: true });
 }
 
-/* ───────────────────────────────────────────
-   Back to Top
-─────────────────────────────────────────── */
 function initBackToTop() {
   const btn = document.getElementById('backToTop');
   if (!btn) return;
@@ -419,9 +444,6 @@ function initBackToTop() {
   });
 }
 
-/* ───────────────────────────────────────────
-   Lazy Images
-─────────────────────────────────────────── */
 function initLazyImages() {
   const images = document.querySelectorAll('img[data-src]');
   if (!images.length || !('IntersectionObserver' in window)) {
@@ -442,9 +464,6 @@ function initLazyImages() {
   images.forEach(function(img) { observer.observe(img); });
 }
 
-/* ───────────────────────────────────────────
-   Footer Year
-─────────────────────────────────────────── */
 function initFooterYear() {
   document.querySelectorAll('#footerYear').forEach(function(el) {
     el.textContent = new Date().getFullYear();
@@ -455,8 +474,6 @@ function initFooterYear() {
    Admin Login
 ─────────────────────────────────────────── */
 function initAdminLogin() {
-  const ADMIN_PASSWORD = 'yktvwithkyle'; // Change this to your desired password
-
   const loginBtn = document.getElementById('loginBtn');
   const passwordInput = document.getElementById('adminLoginPassword');
   const errorEl = document.getElementById('loginError');
@@ -465,7 +482,7 @@ function initAdminLogin() {
 
   function handleLogin() {
     const input = passwordInput.value;
-    if (input === ADMIN_PASSWORD) {
+    if (input === ADMIN_CONFIG.password) {
       window.location.href = 'admin.html';
     } else {
       if (errorEl) errorEl.style.display = 'block';
@@ -546,7 +563,7 @@ function initAdminFleet() {
 }
 
 /* ───────────────────────────────────────────
-   Booking Page
+   Booking Page – with Pickup Type & Delivery Fee (No Receipt)
 ─────────────────────────────────────────── */
 function initBookingPage() {
   const vehicleSelect = document.getElementById('vehicleSelect');
@@ -615,125 +632,10 @@ function initBookingPage() {
       }
     }
   }
-
-  const LOCATION_LABELS = {
-    kiambu: 'Nairobi - Kiambu Rd',
-    westlands: 'Nairobi - Westlands',
-    cbd: 'Nairobi - CBD',
-    jkia: 'JKIA Airport',
-    karen: 'Karen',
-    mombasa: 'Mombasa - Bamburi'
-  };
-
-  function updateReceipt() {
-    const placeholder = document.getElementById('receiptPlaceholder');
-    const details = document.getElementById('receiptDetails');
-    const rcCarName = document.getElementById('rcCarName');
-    const rcCarCategory = document.getElementById('rcCarCategory');
-    const rcDailyRate = document.getElementById('rcDailyRate');
-    const rcPickupDate = document.getElementById('rcPickupDate');
-    const rcReturnDate = document.getElementById('rcReturnDate');
-    const rcDays = document.getElementById('rcDays');
-    const rcLocation = document.getElementById('rcLocation');
-    const rcCalcLabel = document.getElementById('rcCalcLabel');
-    const rcCalcValue = document.getElementById('rcCalcValue');
-    const rcTotal = document.getElementById('rcTotal');
-    const rcAvailability = document.getElementById('rcAvailability');
-
-    if (!rcTotal) return;
-
-    const selVal = vehicleSelect.value;
-    if (!selVal) {
-      if (placeholder) placeholder.style.display = '';
-      if (details) details.style.display = 'none';
-      return;
-    }
-
-    const parts = selVal.split('|');
-    const name = parts[0];
-    const dailyRate = parseInt(parts[1], 10) || 0;
-    const category = parts[2] || '';
-    const available = parts[3] === 'true';
-
-    const pickupVal = pickupDateInput ? pickupDateInput.value : null;
-    const returnVal = returnDateInput ? returnDateInput.value : null;
-    const days = daysBetween(pickupVal, returnVal);
-    const total = dailyRate * days;
-    const locVal = locationSelect ? locationSelect.value : '';
-    const locLabel = LOCATION_LABELS[locVal] || '—';
-
-    if (placeholder) placeholder.style.display = 'none';
-    if (details) details.style.display = '';
-
-    if (rcCarName) rcCarName.textContent = name || '—';
-    if (rcCarCategory) rcCarCategory.textContent = category ? category.charAt(0).toUpperCase() + category.slice(1) + ' vehicle' : '—';
-    if (rcDailyRate) rcDailyRate.textContent = dailyRate > 0 ? formatKSh(dailyRate) + ' / day' : '—';
-    if (rcPickupDate) rcPickupDate.textContent = formatDateDisplay(pickupVal);
-    if (rcReturnDate) rcReturnDate.textContent = formatDateDisplay(returnVal);
-    if (rcDays) rcDays.textContent = days > 0 ? days + (days === 1 ? ' day' : ' days') : '—';
-    if (rcLocation) rcLocation.textContent = locLabel;
-
-    if (rcAvailability) {
-      if (days > 0 && available) {
-        rcAvailability.innerHTML = '<span class="availability-status available">Available</span>';
-      } else if (days > 0 && !available) {
-        rcAvailability.innerHTML = '<span class="availability-status unavailable">Not Available for these dates</span>';
-        showToast('This vehicle is currently booked for the selected dates.', 'error');
-      } else {
-        rcAvailability.textContent = '—';
-      }
-    }
-
-    if (rcCalcLabel) {
-      rcCalcLabel.textContent = days > 0 ? formatKSh(dailyRate) + ' × ' + days + (days === 1 ? ' day' : ' days') : 'Select dates above';
-    }
-    if (rcCalcValue) {
-      rcCalcValue.textContent = days > 0 ? '= ' + formatKSh(total) : '—';
-    }
-
-    if (rcTotal) {
-      rcTotal.textContent = days > 0 ? formatKSh(total) : 'KSh 0';
-      rcTotal.classList.remove('pulse');
-      void rcTotal.offsetWidth;
-      rcTotal.classList.add('pulse');
-      setTimeout(function() {
-        rcTotal.classList.remove('pulse');
-      }, 350);
-    }
-  }
-
-  if (pickupDateInput) {
-    pickupDateInput.addEventListener('change', function() {
-      if (returnDateInput && returnDateInput.value <= this.value) {
-        const next = new Date(this.value + 'T00:00:00');
-        next.setDate(next.getDate() + 1);
-        returnDateInput.value = toDateString(next);
-      }
-      if (returnDateInput) returnDateInput.min = this.value;
-      updateReceipt();
-    });
-  }
-
-  if (returnDateInput) {
-    returnDateInput.addEventListener('change', function() {
-      if (pickupDateInput && this.value <= pickupDateInput.value) {
-        showToast('Return date must be after pickup date.', 'error');
-        const next = new Date(pickupDateInput.value + 'T00:00:00');
-        next.setDate(next.getDate() + 1);
-        this.value = toDateString(next);
-      }
-      updateReceipt();
-    });
-  }
-
-  vehicleSelect.addEventListener('change', updateReceipt);
-  if (locationSelect) locationSelect.addEventListener('change', updateReceipt);
-
-  updateReceipt();
 }
 
 /* ───────────────────────────────────────────
-   Booking Form (with EmailJS, Firebase, WhatsApp)
+   Booking Form – No Deposit, Only Delivery Fee
 ─────────────────────────────────────────── */
 function initBookingForm() {
   const form = document.getElementById('bookingForm');
@@ -747,102 +649,152 @@ function initBookingForm() {
     return show;
   }
 
-  function sendEmails(bookingData) {
-    if (typeof emailjs === 'undefined') {
-      console.warn('EmailJS not available. Emails will not be sent.');
-      return Promise.reject(new Error('EmailJS not available'));
-    }
-
-    const customerParams = {
-      name: bookingData.name,
-      email: bookingData.email,
-      booking_id: bookingData.booking_id,
-      car: bookingData.car,
-      pickup_date: bookingData.pickup_date,
-      return_date: bookingData.return_date,
-      days: bookingData.days,
-      total: bookingData.total,
-      location: bookingData.location,
-      phone: bookingData.phone,
-      requests: bookingData.requests
-    };
-
-    const ownerParams = {
-      name: bookingData.name,
-      email: bookingData.email,
-      phone: bookingData.phone,
-      booking_id: bookingData.booking_id,
-      car: bookingData.car,
-      pickup_date: bookingData.pickup_date,
-      return_date: bookingData.return_date,
-      days: bookingData.days,
-      total: bookingData.total,
-      location: bookingData.location,
-      requests: bookingData.requests
-    };
-
-    return Promise.all([
-      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.customerTemplate, customerParams, EMAILJS_CONFIG.publicKey),
-      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.ownerTemplate, ownerParams, EMAILJS_CONFIG.publicKey)
-    ]);
+  function getSelectedPickupType() {
+    const radios = document.querySelectorAll('input[name="pickupType"]');
+    let type = 'self';
+    let label = 'Self Pickup';
+    radios.forEach(function(radio) {
+      if (radio.checked) {
+        type = radio.value;
+        label = radio.value === 'delivery' ? 'Car Delivery' : 'Self Pickup';
+      }
+    });
+    return { type: type, label: label };
   }
 
-  function saveToFirebase(bookingData) {
-    if (!db) {
-      console.warn('Firebase not available. Booking not saved.');
-      return Promise.reject(new Error('Firebase not available'));
-    }
+  function sendEmailFallback(bookingData) {
+    const subject = 'Booking Request - ' + bookingData.booking_id;
+    const body = 'Name: ' + bookingData.name + '%0A' +
+                 'Email: ' + bookingData.email + '%0A' +
+                 'Phone: ' + bookingData.phone + '%0A' +
+                 'Car: ' + bookingData.car + '%0A' +
+                 'Pickup: ' + bookingData.pickup_date_display + '%0A' +
+                 'Return: ' + bookingData.return_date_display + '%0A' +
+                 'Days: ' + bookingData.days + '%0A' +
+                 'Rental Total: ' + bookingData.rental_total + '%0A' +
+                 'Delivery Fee: ' + bookingData.delivery_fee + '%0A' +
+                 'Total: ' + bookingData.total + '%0A' +
+                 'Location: ' + bookingData.location + '%0A' +
+                 'Pickup Method: ' + bookingData.pickup_type + '%0A' +
+                 'Requests: ' + bookingData.requests;
 
-    return db.collection('bookings').add({
-      booking_id: bookingData.booking_id,
-      name: bookingData.name,
-      email: bookingData.email,
-      phone: bookingData.phone,
-      car: bookingData.car,
-      pickup_date: bookingData.pickup_date,
-      return_date: bookingData.return_date,
-      days: bookingData.days,
-      total: bookingData.total,
-      location: bookingData.location,
-      requests: bookingData.requests,
-      status: 'pending',
-      created_at: firebase.firestore.FieldValue.serverTimestamp()
+    window.open('mailto:' + bookingData.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
+    window.open('mailto:' + EMAILJS_CONFIG.ownerEmail + '?subject=' + encodeURIComponent('New Booking - ' + bookingData.booking_id) + '&body=' + encodeURIComponent(body), '_blank');
+  }
+
+  // ── Send emails via EmailJS ──
+  function sendEmails(bookingData) {
+    return new Promise(function(resolve, reject) {
+      if (typeof emailjs === 'undefined') {
+        console.warn('[WARN] EmailJS library not loaded.');
+        reject(new Error('EmailJS not loaded'));
+        return;
+      }
+
+      // Customer email – goes to the customer
+      const customerParams = {
+        to_email: bookingData.email,
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+        booking_id: bookingData.booking_id,
+        car: bookingData.car,
+        pickup_date: bookingData.pickup_date_display,
+        return_date: bookingData.return_date_display,
+        days: bookingData.days,
+        rental_total: bookingData.rental_total,
+        delivery_fee: bookingData.delivery_fee,
+        total: bookingData.total,
+        location: bookingData.location,
+        pickup_type: bookingData.pickup_type,
+        requests: bookingData.requests
+      };
+
+      // Owner email – goes to moneycarhire@gmail.com
+      const ownerParams = {
+        to_email: EMAILJS_CONFIG.ownerEmail,
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+        booking_id: bookingData.booking_id,
+        car: bookingData.car,
+        pickup_date: bookingData.pickup_date_display,
+        return_date: bookingData.return_date_display,
+        days: bookingData.days,
+        rental_total: bookingData.rental_total,
+        delivery_fee: bookingData.delivery_fee,
+        total: bookingData.total,
+        location: bookingData.location,
+        pickup_type: bookingData.pickup_type,
+        requests: bookingData.requests
+      };
+
+      console.log('[INFO] Sending customer email to:', customerParams.to_email);
+      console.log('[INFO] Sending owner email to:', ownerParams.to_email);
+      console.log('[INFO] Customer params:', customerParams);
+      console.log('[INFO] Owner params:', ownerParams);
+
+      Promise.all([
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.customerTemplate, customerParams, EMAILJS_CONFIG.publicKey),
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.ownerTemplate, ownerParams, EMAILJS_CONFIG.publicKey)
+      ])
+      .then(function(results) {
+        console.log('[OK] Emails sent successfully:', results);
+        resolve(results);
+      })
+      .catch(function(error) {
+        console.error('[ERROR] EmailJS error:', error);
+        if (error.status === 403) {
+          reject(new Error('EmailJS authentication failed. Check your Public Key.'));
+        } else if (error.status === 404) {
+          reject(new Error('EmailJS template or service not found. Check your Service ID and Template IDs.'));
+        } else if (error.status === 412) {
+          reject(new Error('EmailJS missing required parameters. Check template variables.'));
+        } else {
+          reject(error);
+        }
+      });
     });
   }
 
-  function sendWhatsAppNotification(bookingData) {
-    const phone = formatPhoneForWhatsApp(bookingData.phone);
-    const ownerPhone = '254745424341';
+  function saveToFirebase(bookingData) {
+    return new Promise(function(resolve, reject) {
+      if (!db) {
+        console.warn('[WARN] Firestore not available.');
+        reject(new Error('Firestore not available'));
+        return;
+      }
 
-    const customerMessage = 'Hello ' + bookingData.name + '!%0A' +
-      'Thank you for booking with Money Carhire.%0A' +
-      'Booking Reference: ' + bookingData.booking_id + '%0A' +
-      'Vehicle: ' + bookingData.car + '%0A' +
-      'Pickup: ' + bookingData.pickup_date + '%0A' +
-      'Return: ' + bookingData.return_date + '%0A' +
-      'Total: ' + bookingData.total + '%0A' +
-      '%0A' +
-      'Our team will confirm your booking within 2 hours.%0A' +
-      'Contact us: +254 745 424 341';
-
-    const ownerMessage = 'New Booking Request!%0A' +
-      'Reference: ' + bookingData.booking_id + '%0A' +
-      'Name: ' + bookingData.name + '%0A' +
-      'Email: ' + bookingData.email + '%0A' +
-      'Phone: ' + bookingData.phone + '%0A' +
-      'Car: ' + bookingData.car + '%0A' +
-      'Pickup: ' + bookingData.pickup_date + '%0A' +
-      'Return: ' + bookingData.return_date + '%0A' +
-      'Days: ' + bookingData.days + '%0A' +
-      'Total: ' + bookingData.total + '%0A' +
-      'Location: ' + bookingData.location + '%0A' +
-      'Requests: ' + bookingData.requests;
-
-    const customerUrl = 'https://wa.me/' + phone + '?text=' + customerMessage;
-    const ownerUrl = 'https://wa.me/' + ownerPhone + '?text=' + ownerMessage;
-
-    window.open(customerUrl, '_blank');
-    window.open(ownerUrl, '_blank');
+      console.log('[INFO] Saving to Firebase:', bookingData);
+      db.collection('bookings').add({
+        booking_id: bookingData.booking_id,
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+        car: bookingData.car,
+        pickup_date: bookingData.pickup_date,           // Raw YYYY-MM-DD
+        return_date: bookingData.return_date,           // Raw YYYY-MM-DD
+        pickup_date_display: bookingData.pickup_date_display,
+        return_date_display: bookingData.return_date_display,
+        days: bookingData.days,
+        rental_total: bookingData.rental_total,
+        delivery_fee: bookingData.delivery_fee,
+        total: bookingData.total,
+        location: bookingData.location,
+        pickup_type: bookingData.pickup_type,
+        requests: bookingData.requests,
+        status: 'pending',
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(function(docRef) {
+        console.log('[OK] Firebase saved, doc ID:', docRef.id);
+        resolve(docRef);
+      })
+      .catch(function(error) {
+        console.error('[ERROR] Firebase save error:', error);
+        reject(error);
+      });
+    });
   }
 
   form.addEventListener('submit', function(e) {
@@ -856,6 +808,8 @@ function initBookingForm() {
     const ret = document.getElementById('returnDate')?.value || '';
     const loc = document.getElementById('pickupLocation')?.value || '';
     const vehicle = document.getElementById('vehicleSelect')?.value || '';
+
+    const pickupType = getSelectedPickupType();
 
     if (setError('fieldName', 'errName', !name || name.length < 2)) hasError = true;
     if (setError('fieldEmail', 'errEmail', !email || !validateEmail(email))) hasError = true;
@@ -891,15 +845,13 @@ function initBookingForm() {
     const carName = vehicleParts[0];
     const dailyRate = parseInt(vehicleParts[1], 10) || 0;
     const days = daysBetween(pickup, ret);
-    const total = dailyRate * days;
+    const rentalTotal = dailyRate * days;
+    const deliveryFee = pickupType.type === 'delivery' ? DELIVERY_FEE : 0;
+    const total = rentalTotal + deliveryFee;
 
     const LOCATION_LABELS = {
-      kiambu: 'Nairobi - Kiambu Rd',
       westlands: 'Nairobi - Westlands',
-      cbd: 'Nairobi - CBD',
-      jkia: 'JKIA Airport',
-      karen: 'Karen',
-      mombasa: 'Mombasa - Bamburi'
+      jkia: 'JKIA Airport'
     };
     const locationLabel = LOCATION_LABELS[loc] || loc || 'Not specified';
 
@@ -911,39 +863,44 @@ function initBookingForm() {
       email: email,
       phone: phone,
       car: carName,
-      pickup_date: formatDateDisplay(pickup),
-      return_date: formatDateDisplay(ret),
+      pickup_date: pickup,                                    // Raw YYYY-MM-DD
+      return_date: ret,                                       // Raw YYYY-MM-DD
+      pickup_date_display: formatDateDisplay(pickup),         // Formatted for emails
+      return_date_display: formatDateDisplay(ret),            // Formatted for emails
       days: days,
+      rental_total: formatKSh(rentalTotal),
+      delivery_fee: formatKSh(deliveryFee),
       total: formatKSh(total),
       location: locationLabel,
+      pickup_type: pickupType.label,
       requests: document.getElementById('fieldRequests')?.value.trim() || 'None'
     };
 
     let emailSent = false;
     let firebaseSaved = false;
+    let emailError = null;
 
-    // Send emails
     sendEmails(bookingData)
       .then(function() {
         emailSent = true;
-        console.log('Emails sent successfully');
+        console.log('[OK] Emails sent via EmailJS.');
       })
-      .catch(function(error) {
-        console.error('Email sending failed:', error);
+      .catch(function(err) {
+        emailError = err;
+        console.warn('[WARN] EmailJS failed, using fallback...');
+        sendEmailFallback(bookingData);
+        emailSent = true;
       });
 
-    // Save to Firebase
     saveToFirebase(bookingData)
       .then(function() {
         firebaseSaved = true;
-        console.log('Booking saved to Firebase');
+        console.log('[OK] Booking saved to Firebase');
       })
       .catch(function(error) {
-        console.error('Firebase save failed:', error);
+        console.error('[ERROR] Firebase save failed:', error);
+        showToast('Could not save booking to database. Please contact support.', 'error');
       });
-
-    // Send WhatsApp notification
-    sendWhatsAppNotification(bookingData);
 
     setTimeout(function() {
       btn.innerHTML = originalHTML;
@@ -955,9 +912,21 @@ function initBookingForm() {
       if (success) success.style.display = 'block';
 
       let toastMessage = 'Booking request sent! We\'ll confirm within 2 hours.';
-      if (emailSent) toastMessage += ' A confirmation email has been sent to you.';
-      if (firebaseSaved) toastMessage += ' Your booking has been saved securely.';
-      toastMessage += ' A WhatsApp message has also been sent to you.';
+      if (emailSent) {
+        if (emailError) {
+          toastMessage += ' A confirmation email will open in your email client. Please send it.';
+        } else {
+          toastMessage += ' A confirmation email has been sent to you.';
+        }
+      } else {
+        toastMessage += ' (Email could not be sent, but we received your request.)';
+      }
+      if (firebaseSaved) {
+        toastMessage += ' Your booking has been saved securely.';
+      }
+      if (deliveryFee > 0) {
+        toastMessage += ' A delivery fee of ' + formatKSh(deliveryFee) + ' has been added.';
+      }
       showToast(toastMessage);
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1025,7 +994,7 @@ function initContactForm() {
 }
 
 /* ───────────────────────────────────────────
-   Admin Dashboard (with Firebase)
+   Admin Dashboard – No Stats Cards, Keep Chart, Quick Stats, Table
 ─────────────────────────────────────────── */
 function initAdminDashboard() {
   const bookingsBody = document.getElementById('bookingsBody');
@@ -1039,47 +1008,115 @@ function initAdminDashboard() {
   const refreshBtn = document.getElementById('refreshBtn');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  if (!bookingsBody) return;
+  if (!bookingsBody) {
+    console.warn('[WARN] Admin dashboard element not found.');
+    return;
+  }
 
   let allBookings = [];
   let unsubscribe = null;
 
-  function formatDate(date) {
-    if (!date) return '—';
-    const d = date.toDate ? date.toDate() : new Date(date);
-    return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
+  function getTodayString() {
+    return new Date().toISOString().split('T')[0];
   }
 
-  function updateStats(bookings) {
-    const total = bookings.length;
-    const pending = bookings.filter(function(b) { return b.status === 'pending'; }).length;
-    const confirmed = bookings.filter(function(b) { return b.status === 'confirmed'; }).length;
-    const revenue = bookings.reduce(function(sum, b) {
-      const totalStr = b.total || '0';
-      const num = parseInt(totalStr.replace(/[^0-9]/g, '')) || 0;
-      return sum + num;
-    }, 0);
+  // ── Update Quick Stats ──
+  function updateQuickStats(bookings) {
+    const carCounts = {};
+    bookings.forEach(function(b) {
+      if (b.car) {
+        carCounts[b.car] = (carCounts[b.car] || 0) + 1;
+      }
+    });
+    let mostPopularCar = '—';
+    let maxCount = 0;
+    for (var car in carCounts) {
+      if (carCounts[car] > maxCount) {
+        maxCount = carCounts[car];
+        mostPopularCar = car;
+      }
+    }
 
-    document.getElementById('totalBookings').textContent = total;
-    document.getElementById('pendingBookings').textContent = pending;
-    document.getElementById('confirmedBookings').textContent = confirmed;
-    document.getElementById('totalRevenue').textContent = formatKSh(revenue);
+    const todayStr = getTodayString();
+    const todayBookings = bookings.filter(function(b) {
+      if (b.pickup_date) {
+        const pickupDate = new Date(b.pickup_date);
+        const pickupStr = pickupDate.toISOString ? pickupDate.toISOString().split('T')[0] : '';
+        return pickupStr === todayStr;
+      }
+      return false;
+    }).length;
+
+    let totalDays = 0;
+    let countDays = 0;
+    bookings.forEach(function(b) {
+      const days = safeParseNumber(b.days);
+      if (days > 0) {
+        totalDays += days;
+        countDays++;
+      }
+    });
+    const avgDays = countDays > 0 ? (totalDays / countDays).toFixed(1) : '—';
+
+    document.getElementById('mostPopularCar').textContent = mostPopularCar;
+    document.getElementById('todayBookings').textContent = todayBookings;
+    document.getElementById('avgDays').textContent = avgDays === '—' ? '—' : avgDays + ' days';
   }
 
-  function populateCarFilter() {
+  // ── Update Weekly Chart ──
+  function updateWeeklyChart(bookings) {
+    const chartContainer = document.getElementById('weeklyChart');
+    if (!chartContainer) return;
+
+    const days = [];
+    for (var i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const label = d.toLocaleDateString('en-KE', { weekday: 'short' });
+      days.push({ date: dateStr, label: label, count: 0 });
+    }
+
+    bookings.forEach(function(b) {
+      if (b.created_at) {
+        const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
+        const dateStr = createdDate.toISOString().split('T')[0];
+        days.forEach(function(day) {
+          if (day.date === dateStr) {
+            day.count++;
+          }
+        });
+      }
+    });
+
+    const maxCount = Math.max(1, Math.max.apply(null, days.map(function(d) { return d.count; })));
+    chartContainer.innerHTML = days.map(function(day) {
+      const heightPercent = (day.count / maxCount) * 100;
+      const barHeight = Math.max(4, heightPercent);
+      return '<div class="bar" style="height:' + barHeight + '%; min-height:4px;">' +
+        '<span class="bar-tooltip">' + day.label + ': ' + day.count + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // ── Populate Car Filter ──
+  function populateCarFilter(bookings) {
     const cars = new Set();
-    allBookings.forEach(function(b) {
+    bookings.forEach(function(b) {
       if (b.car) cars.add(b.car);
     });
-    carFilter.innerHTML = '<option value="">All Vehicles</option>';
+    const carFilterEl = document.getElementById('carFilter');
+    if (!carFilterEl) return;
+    carFilterEl.innerHTML = '<option value="">All Vehicles</option>';
     cars.forEach(function(car) {
       const opt = document.createElement('option');
       opt.value = car;
       opt.textContent = car;
-      carFilter.appendChild(opt);
+      carFilterEl.appendChild(opt);
     });
   }
 
+  // ── Render Table ──
   function renderTable(bookings) {
     if (!bookings || bookings.length === 0) {
       tableContent.style.display = 'none';
@@ -1095,18 +1132,26 @@ function initAdminDashboard() {
     bookingsBody.innerHTML = bookings.map(function(b) {
       const statusClass = b.status || 'pending';
       const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+      const pickupType = b.pickup_type || 'Self Pickup';
+      const totalAmount = b.total || b.rental_total || 'KSh 0';
+
+      // Use the raw date fields and format them
+      const pickupDate = b.pickup_date || b.pickup_date_display || '—';
+      const returnDate = b.return_date || b.return_date_display || '—';
 
       return '<tr>' +
         '<td><strong>' + (b.booking_id || '—') + '</strong></td>' +
         '<td>' +
         '<div><strong>' + (b.name || '—') + '</strong></div>' +
-        '<div style="font-size:0.75rem; color:var(--text-secondary);">' + (b.email || '') + '</div>' +
+        '<div style="font-size:0.7rem; color:var(--text-secondary);">' + (b.email || '') + '</div>' +
         '</td>' +
         '<td>' + (b.car || '—') + '</td>' +
-        '<td>' + formatDate(b.pickup_date) + '</td>' +
-        '<td>' + formatDate(b.return_date) + '</td>' +
+        '<td>' + formatDateDisplay(pickupDate) + '</td>' +
+        '<td>' + formatDateDisplay(returnDate) + '</td>' +
         '<td>' + (b.days || '—') + '</td>' +
-        '<td><strong style="color:var(--accent-gold);">' + (b.total || '—') + '</strong></td>' +
+        '<td><strong style="color:var(--accent-gold);">' + totalAmount + '</strong></td>' +
+        '<td>' + pickupType + '</td>' +
+        '<td>Pay on Pickup/Delivery</td>' +
         '<td>' +
         '<select class="status-select" data-id="' + b.id + '" data-current="' + statusClass + '">' +
         '<option value="pending"' + (statusClass === 'pending' ? ' selected' : '') + '>Pending</option>' +
@@ -1119,7 +1164,7 @@ function initAdminDashboard() {
         '</tr>';
     }).join('');
 
-    // Status change handlers
+    // ── Status change handlers – SYNC WITH FLEET ──
     bookingsBody.querySelectorAll('.status-select').forEach(function(sel) {
       sel.addEventListener('change', function() {
         const id = this.dataset.id;
@@ -1128,16 +1173,29 @@ function initAdminDashboard() {
           db.collection('bookings').doc(id).update({ status: newStatus })
             .then(function() {
               showAdminToast('Booking status updated to ' + newStatus, 'success');
+              const booking = allBookings.find(function(b) { return b.id === id; });
+              if (booking && booking.car) {
+                const vehicle = VEHICLES_DATA.find(function(v) { return v.name === booking.car; });
+                if (vehicle) {
+                  if (newStatus === 'confirmed' || newStatus === 'completed') {
+                    setCarAvailability(vehicle.id, 'booked');
+                    showAdminToast('Car ' + vehicle.name + ' marked as Booked', 'success');
+                  } else if (newStatus === 'cancelled') {
+                    setCarAvailability(vehicle.id, 'available');
+                    showAdminToast('Car ' + vehicle.name + ' marked as Available', 'success');
+                  }
+                  updateAvailabilityBadges();
+                }
+              }
             })
             .catch(function(error) {
-              console.error('Error updating status:', error);
+              console.error('[ERROR] Error updating status:', error);
               showAdminToast('Failed to update status', 'error');
             });
         }
       });
     });
 
-    // Delete handlers
     bookingsBody.querySelectorAll('.delete-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         const id = this.dataset.id;
@@ -1148,7 +1206,7 @@ function initAdminDashboard() {
                 showAdminToast('Booking deleted successfully', 'success');
               })
               .catch(function(error) {
-                console.error('Error deleting booking:', error);
+                console.error('[ERROR] Error deleting booking:', error);
                 showAdminToast('Failed to delete booking', 'error');
               });
           }
@@ -1158,9 +1216,9 @@ function initAdminDashboard() {
   }
 
   function applyFilters() {
-    const search = searchInput.value.toLowerCase().trim();
-    const status = statusFilter.value;
-    const car = carFilter.value;
+    const search = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    const status = (statusFilter ? statusFilter.value : '');
+    const car = (carFilter ? carFilter.value : '');
 
     const filtered = allBookings.filter(function(b) {
       const matchSearch = !search ||
@@ -1173,7 +1231,8 @@ function initAdminDashboard() {
     });
 
     renderTable(filtered);
-    updateStats(filtered);
+    updateQuickStats(filtered);
+    updateWeeklyChart(filtered);
   }
 
   function loadBookings() {
@@ -1192,6 +1251,7 @@ function initAdminDashboard() {
       unsubscribe();
     }
 
+    console.log('[INFO] Loading bookings from Firebase...');
     unsubscribe = db.collection('bookings')
       .orderBy('created_at', 'desc')
       .onSnapshot(function(snapshot) {
@@ -1202,14 +1262,14 @@ function initAdminDashboard() {
           allBookings.push(data);
         });
 
-        populateCarFilter();
+        populateCarFilter(allBookings);
         applyFilters();
-        console.log('Loaded ' + allBookings.length + ' bookings from Firebase');
+        console.log('[OK] Loaded ' + allBookings.length + ' bookings from Firebase');
       }, function(error) {
-        console.error('Error loading bookings:', error);
+        console.error('[ERROR] Error loading bookings:', error);
         loadingState.style.display = 'none';
         emptyState.style.display = 'block';
-        emptyState.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Error loading bookings. Please refresh or check your Firebase configuration.</p>';
+        emptyState.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Error loading bookings: ' + error.message + '</p>';
         showAdminToast('Error loading bookings: ' + error.message, 'error');
       });
   }
@@ -1220,7 +1280,7 @@ function initAdminDashboard() {
       return;
     }
 
-    const headers = ['Booking ID', 'Name', 'Email', 'Phone', 'Car', 'Pickup Date', 'Return Date', 'Days', 'Total', 'Status', 'Location', 'Requests'];
+    const headers = ['Booking ID', 'Name', 'Email', 'Phone', 'Car', 'Pickup Date', 'Return Date', 'Days', 'Rental Total', 'Delivery Fee', 'Total', 'Pickup Type', 'Status', 'Location', 'Requests'];
     const rows = allBookings.map(function(b) {
       return [
         b.booking_id || '',
@@ -1228,10 +1288,13 @@ function initAdminDashboard() {
         b.email || '',
         b.phone || '',
         b.car || '',
-        formatDate(b.pickup_date),
-        formatDate(b.return_date),
+        formatDateDisplay(b.pickup_date || b.pickup_date_display),
+        formatDateDisplay(b.return_date || b.return_date_display),
         b.days || '',
+        b.rental_total || '',
+        b.delivery_fee || 'KSh 0',
         b.total || '',
+        b.pickup_type || 'Self Pickup',
         b.status || '',
         b.location || '',
         b.requests || ''
@@ -1255,7 +1318,6 @@ function initAdminDashboard() {
     showAdminToast('Bookings exported successfully!', 'success');
   }
 
-  // Event listeners
   if (searchInput) searchInput.addEventListener('input', applyFilters);
   if (statusFilter) statusFilter.addEventListener('change', applyFilters);
   if (carFilter) carFilter.addEventListener('change', applyFilters);
@@ -1274,11 +1336,9 @@ function initAdminDashboard() {
 /* ───────────────────────────────────────────
    Bootstrap – Initialize Everything
 ─────────────────────────────────────────── */
-
-// ONLY run DOM-related code if we are in a browser environment
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
-    // Core features
+    console.log('[INFO] DOM ready - initializing Money Carhire');
     initDarkMode();
     initNavbar();
     initHeroDate();
@@ -1291,12 +1351,10 @@ if (typeof document !== 'undefined') {
     initLazyImages();
     initFooterYear();
 
-    // Booking features
     initBookingPage();
     initBookingForm();
     initContactForm();
 
-    // Admin features (detect which admin page we're on)
     if (document.getElementById('adminLoginPassword')) {
       initAdminLogin();
     }
@@ -1310,7 +1368,7 @@ if (typeof document !== 'undefined') {
 }
 
 /* ───────────────────────────────────────────
-   Export for Jest (Node.js)
+   Export for Jest
 ─────────────────────────────────────────── */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -1326,6 +1384,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getAvailability: getAvailability,
     saveAvailability: saveAvailability,
     updateAvailabilityBadges: updateAvailabilityBadges,
-    VEHICLES_DATA: VEHICLES_DATA
+    VEHICLES_DATA: VEHICLES_DATA,
+    DELIVERY_FEE: DELIVERY_FEE,
+    safeParseNumber: safeParseNumber
   };
 }
