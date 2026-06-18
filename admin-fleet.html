@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Management - Money Carhire</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    .admin-wrapper {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--accent-gold);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-header h1 {
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .admin-card {
+      background: var(--bg-surface);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+      border: 2px solid var(--glass-border);
+      transition: transform 0.2s;
+    }
+    .admin-card:hover { transform: translateY(-4px); }
+    .admin-card .name { font-size: 1.1rem; font-weight: 700; }
+    .admin-card .price { color: var(--accent-gold); font-weight: 600; margin: 0.25rem 0 0.75rem; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .status-badge.available { background: #27ae60; color: #fff; }
+    .status-badge.booked { background: #e74c3c; color: #fff; }
+    .status-badge.maintenance { background: #f39c12; color: #fff; }
+    .status-text-available { color: #27ae60; }
+    .status-text-booked { color: #e74c3c; }
+    .status-text-maintenance { color: #f39c12; }
+    .admin-card .btn-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .admin-card .btn-group button {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-available { background: #27ae60; color: #fff; }
+    .btn-available:hover { background: #1e8449; }
+    .btn-booked { background: #e74c3c; color: #fff; }
+    .btn-booked:hover { background: #c0392b; }
+    .btn-maintenance { background: #f39c12; color: #fff; }
+    .btn-maintenance:hover { background: #d68910; }
+    .save-btn, .logout-btn {
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .save-btn { background: var(--accent-gold); color: #111; }
+    .save-btn:hover { background: var(--accent-gold-light); transform: translateY(-2px); }
+    .logout-btn { background: #e74c3c; color: #fff; }
+    .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; pointer-events: all; }
+    .toast.success { background: #27ae60; }
+    .toast.error { background: #e74c3c; }
+
+    .info-box {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-surface);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+    }
+    .info-box ul {
+      margin-top: 0.5rem;
+      line-height: 2;
+      color: var(--text-secondary);
+      padding-left: 1.5rem;
+    }
+    .nav-admin {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .nav-admin a {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      transition: background 0.2s;
+    }
+    .nav-admin a:hover { background: rgba(201,160,61,0.1); color: var(--accent-gold); }
+    .nav-admin a.active { background: var(--accent-gold); color: #111; }
+    .admin-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .status-available { color: #27ae60; }
+    .status-booked { color: #e74c3c; }
+    .status-maintenance { color: #f39c12; }
+
+    @media (max-width: 768px) {
+      .admin-header { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="adminToast"></div>
+
+  <div class="page-wrapper">
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo"><i class="fas fa-car-side"></i> Money Carhire Admin</div>
+        <div class="nav-admin">
+          <a href="index.html">Home</a>
+          <a href="booking.html">Booking</a>
+          <a href="admin.html">Dashboard</a>
+          <a href="admin-fleet.html" class="active">Fleet</a>
+          <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="admin-wrapper">
+      <div class="admin-header">
+        <h1><i class="fas fa-car"></i> Fleet Manager</h1>
+        <div class="admin-actions">
+          <button class="save-btn" id="saveChanges"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+      </div>
+
+      <div id="adminGrid" class="admin-grid"></div>
+
+      <div class="info-box">
+        <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+        <ul>
+          <li>Click a status button to change a car's availability.</li>
+          <li>Click <strong>"Save Changes"</strong> to persist the updates.</li>
+          <li>The main website will automatically reflect the new statuses.</li>
+          <li>Statuses: <span class="status-text-available">Available</span> (bookable), <span class="status-text-booked">Booked</span> (unavailable), <span class="status-text-maintenance">Maintenance</span> (temporarily off).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
