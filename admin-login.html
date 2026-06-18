@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Money Carhire</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-primary);
+      padding: 1.5rem;
+    }
+    .login-card {
+      background: var(--bg-surface);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--card-shadow);
+      border: 2px solid var(--accent-gold);
+    }
+    .login-card h1 {
+      color: var(--accent-gold);
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .login-card p {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--glass-border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+    .login-card input:focus { border-color: var(--accent-gold); outline: none; }
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-gold);
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .login-card button:hover { background: var(--accent-gold-light); transform: translateY(-2px); }
+    .login-error { color: #e74c3c; text-align: center; margin-top: 0.75rem; display: none; }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    .back-link a { color: var(--accent-gold); text-decoration: none; }
+    .back-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <h1><i class="fas fa-lock"></i> Admin Login</h1>
+      <p>Enter your credentials to manage the fleet.</p>
+      <input type="password" id="adminLoginPassword" placeholder="Enter admin password..." autofocus>
+      <button id="loginBtn">Login</button>
+      <p class="login-error" id="loginError">Incorrect password. Please try again.</p>
+      <div class="back-link"><a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
