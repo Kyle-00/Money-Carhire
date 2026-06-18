@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="responsive.css">
+  <style>
+    /* Utility class to hide elements instead of inline styles */
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
@@ -58,14 +62,17 @@
         <p class="hero-sub">Unleash prestige with Kenya's finest fleet — delivered to your door.</p>
         <div class="hero-search">
           <div class="search-form">
-            <div class="search-group">
+            <!-- Location - Fixed, non-editable -->
+            <div class="search-group search-group-location">
               <i class="fas fa-map-marker-alt"></i>
-              <input type="text" id="heroLocation" placeholder="Pick-up location" value="Nairobi, Kenya">
+              <input type="text" id="heroLocation" value="Nairobi, Kenya" readonly aria-label="Pickup location" title="Pickup location">
             </div>
+            <!-- Date - Set to today's date by JavaScript -->
             <div class="search-group">
               <i class="fas fa-calendar-alt"></i>
               <input type="date" id="heroDate" title="Pick-up date" aria-label="Pick-up date">
             </div>
+            <!-- Explore Fleet Button -->
             <a href="#fleet" class="btn-gold">Explore Fleet <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
@@ -255,7 +262,7 @@
         <!-- Car 8: Toyota Fielder -->
         <div class="car-card reveal" data-category="economy" data-car-id="fielder">
           <span class="availability-badge" id="badge-fielder">Available</span>
-          <img class="car-img" data-src="assets/images/toyota fielder.jpg" src="assets/images/toyota feilder.jpg" alt="Toyota Fielder" loading="lazy">
+          <img class="car-img" data-src="assets/images/toyota fielder.jpg" src="assets/images/toyota fielder.jpg" alt="Toyota Fielder" loading="lazy">
           <div class="card-content">
             <div class="car-title">Toyota Fielder</div>
             <div class="car-details">
@@ -296,7 +303,7 @@
         <div class="car-card reveal" data-category="economy" data-car-id="demio">
           <div class="car-badge car-badge--green">Best Value</div>
           <span class="availability-badge" id="badge-demio">Available</span>
-          <img class="car-img" data-src="assets/images/mazda demio.jpg" src="assets/images/toyota demio.jpg" alt="Mazda Demio" loading="lazy">
+          <img class="car-img" data-src="assets/images/mazda demio.jpg" src="assets/images/mazda demio.jpg" alt="Mazda Demio" loading="lazy">
           <div class="card-content">
             <div class="car-title">Mazda Demio</div>
             <div class="car-details">
@@ -314,8 +321,8 @@
         </div>
 
       </div>
-      <!-- No results message -->
-      <p class="no-results" id="noResults">No vehicles match your search.</p>
+      <!-- No results message – hidden by default -->
+      <p class="no-results hidden" id="noResults">No vehicles match your search.</p>
     </section>
 
     <!-- Testimonials -->
@@ -379,7 +386,6 @@
             <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
             <a href="https://wa.me/254745424341" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           </div>
-          <!-- Admin link hidden in footer (only owner knows) -->
           <p class="admin-link-hidden">
             <a href="admin-login.html">Admin</a>
           </p>
