@@ -33,16 +33,11 @@
     .booking-hero p { color: #e0e0e0; margin-top: 0.5rem; }
 
     .booking-main {
-      max-width: 1200px;
+      max-width: 900px;
       margin: 3rem auto;
       padding: 0 1.5rem;
     }
-    .booking-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-      align-items: start;
-    }
+
     .booking-form-card {
       background: var(--bg-surface);
       border-radius: 24px;
@@ -96,138 +91,29 @@
     .form-group textarea { border-radius: 12px; resize: vertical; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-    .receipt-card {
-      background: var(--bg-surface);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: var(--card-shadow);
-      border: 2px solid var(--accent-gold);
-      position: sticky;
-      top: 90px;
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 0.5rem 0;
     }
-    .receipt-header {
+    .radio-group label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px dashed var(--glass-border);
-    }
-    .receipt-header i { color: var(--accent-gold); font-size: 1.3rem; }
-    .receipt-header h3 { font-size: 1.2rem; }
-    .receipt-logo {
-      margin-left: auto;
-      font-size: 0.75rem;
-      color: var(--accent-gold);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .receipt-car-info {
-      background: linear-gradient(135deg, rgba(201,160,61,0.1), rgba(201,160,61,0.05));
-      border-radius: 14px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(201,160,61,0.2);
-    }
-    .receipt-car-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-bottom: 0.25rem;
-    }
-    .receipt-car-meta { font-size: 0.8rem; color: var(--text-secondary); }
-
-    .receipt-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 0;
-      font-size: 0.9rem;
-      border-bottom: 1px solid var(--glass-border);
-    }
-    .receipt-line:last-of-type { border-bottom: none; }
-    .receipt-line .label { color: var(--text-secondary); }
-    .receipt-line .value { font-weight: 600; }
-    .receipt-line .value.highlight { color: var(--accent-gold); }
-    .receipt-line .label i { margin-right: 6px; color: var(--accent-gold); }
-    .receipt-included { color: #27ae60; }
-
-    .receipt-divider {
-      border: none;
-      border-top: 2px dashed var(--accent-gold);
-      margin: 1.2rem 0;
-    }
-
-    .receipt-total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8rem 0;
-    }
-    .receipt-total .total-label {
-      font-size: 1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .receipt-total .total-amount {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--accent-gold);
-      transition: all 0.3s ease;
-    }
-    .receipt-total .total-amount.pulse {
-      transform: scale(1.08);
-    }
-
-    .receipt-placeholder {
-      text-align: center;
-      padding: 2rem 0;
-      color: var(--text-secondary);
-    }
-    .receipt-placeholder i { font-size: 2.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block; }
-    .receipt-placeholder p { font-size: 0.85rem; }
-
-    .receipt-note {
-      margin-top: 1rem;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      background: var(--bg-primary);
-      padding: 0.6rem 0.8rem;
-      border-radius: 8px;
-      line-height: 1.5;
-    }
-
-    .receipt-features {
-      margin-top: 1.2rem;
-      display: flex;
-      flex-direction: column;
       gap: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-primary);
     }
-    .receipt-feature {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
+    .radio-group input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
     }
-    .receipt-feature i { color: var(--accent-gold); width: 16px; }
-
-    .availability-status {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-weight: 700;
-      font-size: 0.8rem;
-    }
-    .availability-status.available {
-      background: #27ae60;
-      color: #fff;
-    }
-    .availability-status.unavailable {
-      background: #e74c3c;
-      color: #fff;
+    .radio-group label i {
+      color: var(--accent-gold);
+      font-size: 1rem;
     }
 
     .booking-success {
@@ -255,7 +141,6 @@
     }
 
     .optional-note { font-weight: 400; opacity: .7; }
-    #receiptDetails { display: none; }
 
     .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: #fff; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .toast.show { opacity: 1; pointer-events: all; }
@@ -263,9 +148,7 @@
     .toast.error { background: #e74c3c; }
 
     @media (max-width: 900px) {
-      .booking-grid { grid-template-columns: 1fr; }
       .booking-hero h1 { font-size: 2rem; }
-      .receipt-card { position: static; }
       .form-row { grid-template-columns: 1fr; }
     }
   </style>
@@ -311,7 +194,7 @@
     </section>
 
     <div class="booking-main">
-      <div class="booking-grid">
+      <div class="booking-grid" style="display:block;">
 
         <div class="booking-form-card">
           <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
@@ -349,20 +232,34 @@
                 </div>
               </div>
 
+              <!-- Pickup Location (only Westlands and JKIA) -->
               <div class="form-group">
                 <label for="pickupLocation"><i class="fas fa-map-pin"></i>Pickup Location</label>
                 <select id="pickupLocation" name="pickupLocation">
                   <option value="">-- Select location --</option>
-                  <option value="kiambu">Nairobi - Kiambu Rd</option>
                   <option value="westlands">Nairobi - Westlands</option>
-                  <option value="cbd">Nairobi - CBD</option>
                   <option value="jkia">JKIA Airport</option>
-                  <option value="karen">Karen</option>
-                  <option value="mombasa">Mombasa - Bamburi</option>
                 </select>
                 <span class="form-error-msg" id="errLocation">Please select a pickup location.</span>
               </div>
 
+              <!-- Pickup Type -->
+              <div class="form-group">
+                <label><i class="fas fa-truck"></i>Pickup Method</label>
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="pickupType" value="self" checked>
+                    <i class="fas fa-user"></i> Self Pickup
+                  </label>
+                  <label>
+                    <input type="radio" name="pickupType" value="delivery">
+                    <i class="fas fa-truck"></i> Car Delivery
+                  </label>
+                </div>
+                <span class="form-error-msg" id="errPickupType">Please select a pickup method.</span>
+              </div>
+
+              <!-- Vehicle -->
               <div class="form-group">
                 <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
                 <select id="vehicleSelect" name="vehicle">
@@ -371,6 +268,19 @@
                 <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
               </div>
 
+              <!-- Payment Method – only Pay on Pickup/Delivery -->
+              <div class="form-group">
+                <label><i class="fas fa-credit-card"></i>Payment Method</label>
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="paymentMethod" value="on_pickup" checked>
+                    <i class="fas fa-hand-holding-usd"></i> Pay on Pickup/Delivery
+                  </label>
+                </div>
+                <span class="form-error-msg" id="errPaymentMethod">Please select a payment method.</span>
+              </div>
+
+              <!-- Special Requests -->
               <div class="form-group">
                 <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
                 <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival..."></textarea>
@@ -385,82 +295,9 @@
           <div class="booking-success" id="bookingSuccess">
             <div class="success-icon"><i class="fas fa-check"></i></div>
             <h3>Request Received!</h3>
-            <p>Thank you — our team will call or email you within <strong>1 hour</strong> to confirm your booking.</p>
+            <p>Thank you — our team will call or email you within <strong>2 hours</strong> to confirm your booking.</p>
             <p class="success-subtext">A confirmation email has been sent to your inbox.</p>
             <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> Back to Home</a>
-          </div>
-        </div>
-
-        <div class="receipt-card" id="receiptCard">
-          <div class="receipt-header">
-            <i class="fas fa-receipt"></i>
-            <h3>Booking Summary</h3>
-            <span class="receipt-logo">MONEY CARHIRE</span>
-          </div>
-
-          <div class="receipt-placeholder" id="receiptPlaceholder">
-            <i class="fas fa-car"></i>
-            <p>Select a vehicle and dates to see your live cost breakdown.</p>
-          </div>
-
-          <div id="receiptDetails">
-            <div class="receipt-car-info">
-              <div class="receipt-car-name" id="rcCarName">--</div>
-              <div class="receipt-car-meta" id="rcCarCategory">--</div>
-            </div>
-
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-tag"></i>Daily Rate</span>
-              <span class="value" id="rcDailyRate">--</span>
-            </div>
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-calendar"></i>Pickup Date</span>
-              <span class="value" id="rcPickupDate">--</span>
-            </div>
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-calendar-check"></i>Return Date</span>
-              <span class="value" id="rcReturnDate">--</span>
-            </div>
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-clock"></i>Number of Days</span>
-              <span class="value highlight" id="rcDays">--</span>
-            </div>
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-map-pin"></i>Pickup Location</span>
-              <span class="value" id="rcLocation">--</span>
-            </div>
-            <div class="receipt-line">
-              <span class="label"><i class="fas fa-shield-alt"></i>Insurance and Taxes</span>
-              <span class="value receipt-included">Included</span>
-            </div>
-
-            <div class="receipt-line" id="availabilityLine">
-              <span class="label"><i class="fas fa-check-circle"></i>Availability</span>
-              <span class="value" id="rcAvailability">--</span>
-            </div>
-
-            <hr class="receipt-divider">
-
-            <div class="receipt-line" id="rcCalcLine">
-              <span class="label" id="rcCalcLabel">Calculation</span>
-              <span class="value highlight" id="rcCalcValue">--</span>
-            </div>
-
-            <div class="receipt-total">
-              <span class="total-label">Total Cost</span>
-              <span class="total-amount" id="rcTotal">KSh 0</span>
-            </div>
-
-            <p class="receipt-note">
-              * This is an estimate. Final confirmed amount will be sent by our team via email or SMS after your request is reviewed.
-            </p>
-
-            <div class="receipt-features">
-              <div class="receipt-feature"><i class="fas fa-shield-alt"></i> Full insurance coverage included</div>
-              <div class="receipt-feature"><i class="fas fa-headset"></i> 24/7 Nairobi concierge support</div>
-              <div class="receipt-feature"><i class="fas fa-gas-pump"></i> Full tank on pickup</div>
-              <div class="receipt-feature"><i class="fas fa-road"></i> Unlimited mileage within Kenya</div>
-            </div>
           </div>
         </div>
 
