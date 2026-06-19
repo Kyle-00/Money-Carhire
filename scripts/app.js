@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.init().catch(err => {
     console.error('[App] Fatal error:', err);
-    showToast('Failed to initialise application. Please refresh.', 'error');
+    showToast('Failed to initialize application. Please refresh.', 'error');
   });
   window.__app = app; // for debugging
 });
