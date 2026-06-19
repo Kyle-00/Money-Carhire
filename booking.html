@@ -18,7 +18,7 @@
   
   <style>
     .booking-hero {
-      background: linear-gradient(135deg, #000000, #2a2a2a), url(assets/images/booking\ background.jpg) center/cover no-repeat;
+      background: linear-gradient(135deg, #000000, #2a2a2a), url(assets/images/hero\ background.jpg) center/cover no-repeat;
       background-blend-mode: overlay;
       min-height: 35vh;
       display: flex;
@@ -44,6 +44,8 @@
       padding: 2rem;
       box-shadow: var(--card-shadow);
       border: 1px solid var(--glass-border);
+      max-width: 800px;
+      margin: 0 auto;
     }
     .booking-form-card h3 {
       font-size: 1.4rem;
@@ -150,6 +152,7 @@
     @media (max-width: 900px) {
       .booking-hero h1 { font-size: 2rem; }
       .form-row { grid-template-columns: 1fr; }
+      .booking-form-card { padding: 1.5rem; }
     }
   </style>
 </head>
@@ -194,113 +197,104 @@
     </section>
 
     <div class="booking-main">
-      <div class="booking-grid" style="display:block;">
-
-        <div class="booking-form-card">
-          <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
-          <div id="bookingFormWrap">
-            <form id="bookingForm" novalidate>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="fieldName"><i class="fas fa-user"></i>Full Name</label>
-                  <input type="text" id="fieldName" name="name" placeholder="e.g., John Mwangi" autocomplete="name">
-                  <span class="form-error-msg" id="errName">Please enter your full name.</span>
-                </div>
-                <div class="form-group">
-                  <label for="fieldEmail"><i class="fas fa-envelope"></i>Email</label>
-                  <input type="email" id="fieldEmail" name="email" placeholder="you@example.com" autocomplete="email">
-                  <span class="form-error-msg" id="errEmail">Enter a valid email address.</span>
-                </div>
-              </div>
-
+      <div class="booking-form-card">
+        <h3><i class="fas fa-calendar-alt"></i> Booking Request</h3>
+        <div id="bookingFormWrap">
+          <form id="bookingForm" novalidate>
+            <div class="form-row">
               <div class="form-group">
-                <label for="fieldPhone"><i class="fas fa-phone"></i>Phone Number</label>
-                <input type="tel" id="fieldPhone" name="phone" placeholder="+254 7XX XXX XXX" autocomplete="tel">
-                <span class="form-error-msg" id="errPhone">Enter a valid Kenyan number (+2547... or 07...).</span>
+                <label for="fieldName"><i class="fas fa-user"></i>Full Name</label>
+                <input type="text" id="fieldName" name="name" placeholder="e.g., John Mwangi" autocomplete="name">
+                <span class="form-error-msg" id="errName">Please enter your full name.</span>
               </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="pickupDate"><i class="fas fa-calendar-check"></i>Pickup Date</label>
-                  <input type="date" id="pickupDate" name="pickupDate">
-                  <span class="form-error-msg" id="errPickup">Please select a pickup date.</span>
-                </div>
-                <div class="form-group">
-                  <label for="returnDate"><i class="fas fa-calendar-times"></i>Return Date</label>
-                  <input type="date" id="returnDate" name="returnDate">
-                  <span class="form-error-msg" id="errReturn">Return date must be after pickup.</span>
-                </div>
-              </div>
-
-              <!-- Pickup Location (only Westlands and JKIA) -->
               <div class="form-group">
-                <label for="pickupLocation"><i class="fas fa-map-pin"></i>Pickup Location</label>
-                <select id="pickupLocation" name="pickupLocation">
-                  <option value="">-- Select location --</option>
-                  <option value="westlands">Nairobi - Westlands</option>
-                  <option value="jkia">JKIA Airport</option>
-                </select>
-                <span class="form-error-msg" id="errLocation">Please select a pickup location.</span>
+                <label for="fieldEmail"><i class="fas fa-envelope"></i>Email</label>
+                <input type="email" id="fieldEmail" name="email" placeholder="you@example.com" autocomplete="email">
+                <span class="form-error-msg" id="errEmail">Enter a valid email address.</span>
               </div>
+            </div>
 
-              <!-- Pickup Type -->
+            <div class="form-group">
+              <label for="fieldPhone"><i class="fas fa-phone"></i>Phone Number</label>
+              <input type="tel" id="fieldPhone" name="phone" placeholder="+254 7XX XXX XXX" autocomplete="tel">
+              <span class="form-error-msg" id="errPhone">Enter a valid Kenyan number (+2547... or 07...).</span>
+            </div>
+
+            <div class="form-row">
               <div class="form-group">
-                <label><i class="fas fa-truck"></i>Pickup Method</label>
-                <div class="radio-group">
-                  <label>
-                    <input type="radio" name="pickupType" value="self" checked>
-                    <i class="fas fa-user"></i> Self Pickup
-                  </label>
-                  <label>
-                    <input type="radio" name="pickupType" value="delivery">
-                    <i class="fas fa-truck"></i> Car Delivery
-                  </label>
-                </div>
-                <span class="form-error-msg" id="errPickupType">Please select a pickup method.</span>
+                <label for="pickupDate"><i class="fas fa-calendar-check"></i>Pickup Date</label>
+                <input type="date" id="pickupDate" name="pickupDate">
+                <span class="form-error-msg" id="errPickup">Please select a pickup date.</span>
               </div>
-
-              <!-- Vehicle -->
               <div class="form-group">
-                <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
-                <select id="vehicleSelect" name="vehicle">
-                  <option value="">-- Choose your vehicle --</option>
-                </select>
-                <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
+                <label for="returnDate"><i class="fas fa-calendar-times"></i>Return Date</label>
+                <input type="date" id="returnDate" name="returnDate">
+                <span class="form-error-msg" id="errReturn">Return date must be after pickup.</span>
               </div>
+            </div>
 
-              <!-- Payment Method – only Pay on Pickup/Delivery -->
-              <div class="form-group">
-                <label><i class="fas fa-credit-card"></i>Payment Method</label>
-                <div class="radio-group">
-                  <label>
-                    <input type="radio" name="paymentMethod" value="on_pickup" checked>
-                    <i class="fas fa-hand-holding-usd"></i> Pay on Pickup/Delivery
-                  </label>
-                </div>
-                <span class="form-error-msg" id="errPaymentMethod">Please select a payment method.</span>
+            <div class="form-group">
+              <label for="pickupLocation"><i class="fas fa-map-pin"></i>Pickup Location</label>
+              <select id="pickupLocation" name="pickupLocation">
+                <option value="">-- Select location --</option>
+                <option value="westlands">Nairobi - Westlands</option>
+                <option value="jkia">JKIA Airport</option>
+              </select>
+              <span class="form-error-msg" id="errLocation">Please select a pickup location.</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-truck"></i>Pickup Method</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="pickupType" value="self" checked>
+                  <i class="fas fa-user"></i> Self Pickup
+                </label>
+                <label>
+                  <input type="radio" name="pickupType" value="delivery">
+                  <i class="fas fa-truck"></i> Car Delivery
+                </label>
               </div>
+              <span class="form-error-msg" id="errPickupType">Please select a pickup method.</span>
+            </div>
 
-              <!-- Special Requests -->
-              <div class="form-group">
-                <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
-                <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival..."></textarea>
+            <div class="form-group">
+              <label for="vehicleSelect"><i class="fas fa-car"></i>Select Vehicle</label>
+              <select id="vehicleSelect" name="vehicle">
+                <option value="">-- Choose your vehicle --</option>
+              </select>
+              <span class="form-error-msg" id="errVehicle">Please select a vehicle.</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-credit-card"></i>Payment Method</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="paymentMethod" value="on_pickup" checked>
+                  <i class="fas fa-hand-holding-usd"></i> Pay on Pickup/Delivery
+                </label>
               </div>
+              <span class="form-error-msg" id="errPaymentMethod">Please select a payment method.</span>
+            </div>
 
-              <button type="submit" class="btn-gold" id="submitBtn">
-                <i class="fas fa-paper-plane"></i> Submit Booking Request
-              </button>
-            </form>
-          </div>
+            <div class="form-group">
+              <label for="fieldRequests"><i class="fas fa-comment-dots"></i>Special Requests <span class="optional-note">(optional)</span></label>
+              <textarea id="fieldRequests" name="requests" rows="3" placeholder="e.g., child seat, driver, champagne on arrival..."></textarea>
+            </div>
 
-          <div class="booking-success" id="bookingSuccess">
-            <div class="success-icon"><i class="fas fa-check"></i></div>
-            <h3>Request Received!</h3>
-            <p>Thank you — our team will call or email you within <strong>15 mins</strong> to confirm your booking.</p>
-            <p class="success-subtext">A confirmation email has been sent to your inbox.</p>
-            <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> Back to Home</a>
-          </div>
+            <button type="submit" class="btn-gold" id="submitBtn">
+              <i class="fas fa-paper-plane"></i> Submit Booking Request
+            </button>
+          </form>
         </div>
 
+        <div class="booking-success" id="bookingSuccess">
+          <div class="success-icon"><i class="fas fa-check"></i></div>
+          <h3>Request Received!</h3>
+          <p>Thank you — our team will call or email you within <strong>2 hours</strong> to confirm your booking.</p>
+          <p class="success-subtext">A confirmation email has been sent to your inbox.</p>
+          <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> Back to Home</a>
+        </div>
       </div>
     </div>
 
@@ -316,9 +310,6 @@
             <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
             <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
           </div>
-          <p class="footer-admin-link">
-            <a href="admin-login.html">Admin</a>
-          </p>
         </div>
       </div>
       <div class="footer-bottom">
@@ -327,6 +318,8 @@
     </footer>
   </div>
 
+  <!-- Load config first, then script -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
