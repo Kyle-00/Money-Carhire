@@ -43,7 +43,6 @@
       flex-wrap: wrap;
     }
 
-    /* Chart + Quick Stats */
     .stats-chart-row {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -73,6 +72,15 @@
       padding: 2px 10px;
       border-radius: 40px;
       background: rgba(201, 160, 61, 0.1);
+      color: var(--accent-gold);
+    }
+
+    .admin-actions .admin-action-note {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .accent-gold-icon {
       color: var(--accent-gold);
     }
 
@@ -334,6 +342,13 @@
       color: var(--accent-gold);
       animation: spin 1s linear infinite;
     }
+    .loading-message {
+      margin-top: 0.5rem;
+      color: var(--text-secondary);
+    }
+    .hidden {
+      display: none;
+    }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -376,17 +391,16 @@
       <div class="admin-header">
         <h1><i class="fas fa-chart-line"></i> Booking Dashboard</h1>
         <div class="admin-actions">
-          <span style="font-size:0.85rem; color:var(--text-secondary);">
+          <span class="admin-action-note">
             <i class="fas fa-sync-alt"></i> Real-time updates
           </span>
         </div>
       </div>
 
-      <!-- Chart + Quick Stats -->
       <div class="stats-chart-row">
         <div class="stats-chart-card">
           <div class="chart-header">
-            <h3><i class="fas fa-chart-bar" style="color:var(--accent-gold);"></i> Booking Activity (Last 7 Days)</h3>
+            <h3><i class="fas fa-chart-bar accent-gold-icon"></i> Booking Activity (Last 7 Days)</h3>
             <span class="chart-badge"><i class="fas fa-calendar-alt"></i> Recent</span>
           </div>
           <div class="mini-chart" id="weeklyChart"></div>
@@ -397,7 +411,7 @@
         </div>
         <div class="stats-chart-card">
           <div class="chart-header">
-            <h3><i class="fas fa-bolt" style="color:var(--accent-gold);"></i> Quick Stats</h3>
+            <h3><i class="fas fa-bolt accent-gold-icon"></i> Quick Stats</h3>
             <span class="chart-badge">Today</span>
           </div>
           <div class="quick-stats" id="quickStats">
@@ -417,7 +431,6 @@
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="filters-bar">
         <input type="text" id="searchInput" placeholder="Search by name, email, or booking ID..." aria-label="Search bookings">
         <select id="statusFilter" aria-label="Filter by status">
@@ -436,13 +449,12 @@
         </div>
       </div>
 
-      <!-- Table -->
       <div class="table-wrap">
         <div id="loadingState" class="loading-spinner">
           <i class="fas fa-spinner"></i>
-          <p style="margin-top:0.5rem; color:var(--text-secondary);">Loading bookings...</p>
+          <p class="loading-text">Loading bookings...</p>
         </div>
-        <div id="tableContent" style="display:none;">
+        <div id="tableContent" class="hidden">
           <table>
             <thead>
               <tr>
@@ -462,7 +474,7 @@
             <tbody id="bookingsBody"></tbody>
           </table>
         </div>
-        <div id="emptyState" class="empty-state" style="display:none;">
+        <div id="emptyState" class="empty-state hidden">
           <i class="fas fa-inbox"></i>
           <p>No bookings found. When customers book, they will appear here.</p>
         </div>
@@ -470,6 +482,8 @@
     </div>
   </div>
 
+  <!-- Load config first, then script -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
