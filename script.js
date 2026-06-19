@@ -2,60 +2,59 @@
  * Money Carhire — script.js
  * 
  * This file contains all the JavaScript functionality for the Money Carhire website.
- * It handles:
- * - Booking form submission and validation
- * - Firebase integration for storing bookings
- * - EmailJS for sending confirmation emails
- * - Admin dashboard with real-time updates
- * - Fleet availability management
- * - Dark mode toggle
- * - And more...
+ * Configuration is loaded from config.js
+ * Vehicle data is loaded from vehicles.json via fetch()
  * 
  * @author Money Carhire Team
- * @version 2.0
+ * @version 3.0
  */
 
 'use strict';
 
 /* ============================================================
-   SECTION 1: Firebase Configuration
+   SECTION 1: Load Configuration
    ============================================================ */
 
-/**
- * Firebase configuration object
- * This connects our website to Google's Firebase cloud database
- * All bookings are stored here so they persist between sessions
- */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCrxaEnJ0R7mTJdiJ9vLgQFikoAncAuG7E",
-  authDomain: "money-carhire.firebaseapp.com",
-  projectId: "money-carhire",
-  storageBucket: "money-carhire.firebasestorage.app",
-  messagingSenderId: "269929325057",
-  appId: "1:269929325057:web:3469a8281944d990cd1600",
-  measurementId: "G-156QZDLS94"
+// CONFIG is loaded from config.js via window.CONFIG
+const FIREBASE_CONFIG = window.CONFIG?.firebase || {};
+const EMAILJS_CONFIG = window.CONFIG?.emailjs || { 
+  publicKey: '', 
+  serviceId: '', 
+  customerTemplate: '', 
+  ownerTemplate: '', 
+  ownerEmail: '' 
 };
+const ADMIN_PASSWORD = window.CONFIG?.admin?.password || 'admin123';
+const DELIVERY_FEE = window.CONFIG?.deliveryFee || 1000;
 
-/**
- * Check if we're on a page that needs Firebase
- * Only initialize Firebase if we're on booking or admin pages
- */
+let VEHICLES_DATA = [];
+let db = null;
+
+console.log('[INFO] Config loaded:', {
+  firebase: !!FIREBASE_CONFIG.apiKey,
+  emailjs: !!EMAILJS_CONFIG.publicKey,
+  admin: !!ADMIN_PASSWORD,
+  deliveryFee: DELIVERY_FEE
+});
+
+/* ============================================================
+   SECTION 2: Firebase Initialization (conditional)
+   ============================================================ */
+
+// Only initialize Firebase on pages that actually need Firestore
 const needsFirebase = document.getElementById('bookingForm') || 
-                      document.getElementById('bookingsBody') || 
-                      document.getElementById('adminGrid');
+                      document.getElementById('bookingsBody');
 
-if (needsFirebase) {
-  // Only initialize Firebase if the library is loaded
+if (needsFirebase && FIREBASE_CONFIG.apiKey) {
   if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
     console.log('[OK] Firebase initialized');
   } else if (typeof firebase !== 'undefined') {
     console.log('[INFO] Firebase already initialized');
   } else {
-    console.error('[ERROR] Firebase library not loaded on a page that needs it');
+    console.error('[ERROR] Firebase library not loaded');
   }
-  // Get Firestore database reference
-  const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+  db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
   if (db) {
     console.log('[OK] Firestore available');
   } else {
@@ -66,65 +65,101 @@ if (needsFirebase) {
 }
 
 /* ============================================================
-   SECTION 2: EmailJS Configuration
+   SECTION 3: EmailJS Initialization
    ============================================================ */
 
-/**
- * EmailJS configuration for sending emails directly from the browser
- * No server needed - EmailJS handles the email delivery
- */
-const EMAILJS_CONFIG = {
-  publicKey: 'GrwmOU4hjzqu9yLEP',           // EmailJS API key
-  serviceId: 'service_4sf99gj',             // Email service ID
-  customerTemplate: 'template_ho9ezeu',     // Template for customer confirmation
-  ownerTemplate: 'template_jtnrwul',        // Template for owner notification
-  ownerEmail: 'moneycarhire@gmail.com'      // Owner's email address
-};
-console.log('[INFO] EmailJS Config:', EMAILJS_CONFIG);
-
-// Initialize EmailJS with our public key
-if (typeof emailjs !== 'undefined') {
+if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey) {
   emailjs.init(EMAILJS_CONFIG.publicKey);
   console.log('[OK] EmailJS initialized');
 }
 
 /* ============================================================
-   SECTION 3: Admin Configuration
+   SECTION 4: Load Vehicles from JSON
    ============================================================ */
 
-/**
- * Admin login credentials
- * The password is hardcoded for simplicity (no database needed)
- */
-const ADMIN_CONFIG = {
-  password: 'yktvwithkyle'  // Change this to your own password
-};
+async function loadVehicles() {
+  try {
+    const response = await fetch('vehicles.json');
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    VEHICLES_DATA = await response.json();
+    console.log('[OK] Vehicles loaded:', VEHICLES_DATA.length);
+    renderVehicles();
+    initFleetFilter();
+    updateAvailabilityBadges();
+    
+    // If admin fleet panel is visible and render function exists, re-render it
+    if (document.getElementById('adminGrid') && typeof window.renderAdminFleet === 'function') {
+      window.renderAdminFleet();
+    }
+  } catch (error) {
+    console.error('[ERROR] Failed to load vehicles:', error);
+    // Fallback data
+    VEHICLES_DATA = [
+      { id: 'g-wagon', name: 'Mercedes G-Wagon', price: 50000, category: 'suv', image: 'G-wagon.jpg', badge: 'Most Popular' },
+      { id: 'bmw-x6', name: 'BMW X6', price: 25000, category: 'suv', image: 'BMW X6.jpg' },
+      { id: 'range-rover', name: 'Range Rover Sport', price: 35000, category: 'suv', image: 'range roverr sport.webp' },
+      { id: 'e350', name: 'Mercedes Benz E350', price: 10500, category: 'sedan', image: 'benz E350.jpg' },
+      { id: 'audi-a5', name: 'Audi A5', price: 12500, category: 'sedan', image: 'audi a5.jpg' },
+      { id: 'mazda-cx5', name: 'Mazda CX-5', price: 7000, category: 'suv', image: 'mazda cx5.jpg' },
+      { id: 'mark-x', name: 'Toyota Mark X', price: 6500, category: 'sedan', image: 'mark x.jpg' },
+      { id: 'fielder', name: 'Toyota Fielder', price: 4000, category: 'economy', image: 'toyota fielder.jpg' },
+      { id: 'axela', name: 'Mazda Axela', price: 4500, category: 'economy', image: 'mazda axela.jpg' },
+      { id: 'demio', name: 'Mazda Demio', price: 3500, category: 'economy', image: 'mazda demio.jpg', badge: 'Best Value' }
+    ];
+    renderVehicles();
+    initFleetFilter();
+    updateAvailabilityBadges();
+    
+    if (document.getElementById('adminGrid') && typeof window.renderAdminFleet === 'function') {
+      window.renderAdminFleet();
+    }
+  }
+}
 
-/* ============================================================
-   SECTION 4: Constants & Business Rules
-   ============================================================ */
+function renderVehicles() {
+  const grid = document.getElementById('carsGrid');
+  if (!grid) return;
+  
+  if (VEHICLES_DATA.length === 0) {
+    grid.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-secondary);">No vehicles available.</p>';
+    return;
+  }
 
-/**
- * Business constants that can be easily updated
- */
-const DELIVERY_FEE = 1000;  // KSh 1,000 delivery fee
+  grid.innerHTML = VEHICLES_DATA.map(function(v) {
+    const status = getCarAvailability(v.id);
+    const badgeHTML = v.badge ? `<div class="car-badge">${v.badge}</div>` : '';
+    const availabilityClass = status === 'available' ? 'available' : status === 'maintenance' ? 'maintenance' : 'unavailable';
+    const availabilityLabel = status === 'available' ? 'Available' : status === 'maintenance' ? 'In Maintenance' : 'Currently Booked';
+    return `<div class="car-card reveal" data-category="${v.category}" data-car-id="${v.id}">
+      ${badgeHTML}
+      <span class="availability-badge ${availabilityClass}">${availabilityLabel}</span>
+      <img class="car-img" src="assets/images/${v.image}" alt="${v.name}" loading="lazy">
+      <div class="card-content">
+        <div class="car-title">${v.name}</div>
+        <div class="car-details">
+          <span><i class="fas fa-cog"></i> Automatic</span>
+          <span><i class="fas fa-tachometer-alt"></i> ${v.category === 'suv' ? 'V6' : v.category === 'sedan' ? 'V6' : '1.5L'}</span>
+          <div class="rating">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+            <span>4.8</span>
+          </div>
+        </div>
+        <div class="price-day">KSh ${v.price.toLocaleString()} <span>/ day</span></div>
+        <a href="booking.html?car=${encodeURIComponent(v.name)}&price=${v.price}&category=${v.category}" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 /* ============================================================
    SECTION 5: Helper Functions
    ============================================================ */
 
-/**
- * Format a number as Kenyan Shillings
- * Example: formatKSh(50000) -> "KSh 50,000"
- */
 function formatKSh(amount) {
   return 'KSh ' + Number(amount).toLocaleString('en-KE');
 }
 
-/**
- * Calculate the number of days between two dates
- * Returns 0 if end date is before start date
- */
 function daysBetween(dateStr1, dateStr2) {
   const d1 = new Date(dateStr1);
   const d2 = new Date(dateStr2);
@@ -132,51 +167,28 @@ function daysBetween(dateStr1, dateStr2) {
   return diff > 0 ? Math.round(diff) : 0;
 }
 
-/**
- * Validate email format
- * Returns true if email is valid, false otherwise
- */
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/**
- * Validate Kenyan phone numbers
- * Accepts: +254712345678 or 0712345678
- * Returns true if valid, false otherwise
- */
 function validatePhone(phone) {
   return /^(\+254|0)[17]\d{8}$/.test(phone.replace(/\s/g, ''));
 }
 
-/**
- * Get URL query parameters
- * Example: ?car=BMW&price=25000 -> {car: "BMW", price: "25000"}
- */
 function getQueryParams() {
   return Object.fromEntries(new URLSearchParams(window.location.search));
 }
 
-/**
- * Convert a Date object to YYYY-MM-DD string
- */
 function toDateString(date) {
   return date.toISOString().split('T')[0];
 }
 
-/**
- * Format a date for display
- * Example: "2026-06-20" -> "Jun 20, 2026"
- * Handles different date formats including Firestore timestamps
- */
 function formatDateDisplay(dateStr) {
   if (!dateStr) return '—';
   let d;
   if (typeof dateStr === 'object' && dateStr.toDate) {
-    // Firestore timestamp
     d = dateStr.toDate();
   } else if (typeof dateStr === 'string') {
-    // YYYY-MM-DD format or already formatted
     if (dateStr.includes('-')) {
       d = new Date(dateStr + 'T00:00:00');
     } else {
@@ -189,11 +201,6 @@ function formatDateDisplay(dateStr) {
   return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/**
- * Generate a random booking ID
- * 8 characters from A-Z and 0-9
- * Example: "ABC12345"
- */
 function generateBookingId() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
@@ -203,10 +210,6 @@ function generateBookingId() {
   return result;
 }
 
-/**
- * Safely parse a number from various formats
- * Handles strings like "KSh 50,000" and plain numbers
- */
 function safeParseNumber(value) {
   if (typeof value === 'number' && !isNaN(value)) return value;
   if (typeof value === 'string') {
@@ -217,11 +220,6 @@ function safeParseNumber(value) {
   return 0;
 }
 
-/**
- * Format phone number for WhatsApp
- * Example: "0712345678" -> "254712345678"
- * Example: "+254 712 345 678" -> "254712345678"
- */
 function formatPhoneForWhatsApp(phone) {
   if (!phone) return '';
   let cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
@@ -235,34 +233,9 @@ function formatPhoneForWhatsApp(phone) {
 }
 
 /* ============================================================
-   SECTION 6: Vehicle Data
+   SECTION 6: Fleet Availability (localStorage)
    ============================================================ */
 
-/**
- * Vehicle inventory data
- * Each vehicle has: id, name, price per day, and category
- */
-const VEHICLES_DATA = [
-  { id: 'g-wagon', name: 'Mercedes G-Wagon', price: 50000, category: 'suv' },
-  { id: 'bmw-x6', name: 'BMW X6', price: 25000, category: 'suv' },
-  { id: 'range-rover', name: 'Range Rover Sport', price: 35000, category: 'suv' },
-  { id: 'e350', name: 'Mercedes Benz E350', price: 10500, category: 'sedan' },
-  { id: 'audi-a5', name: 'Audi A5', price: 12500, category: 'sedan' },
-  { id: 'mazda-cx5', name: 'Mazda CX-5', price: 7000, category: 'suv' },
-  { id: 'mark-x', name: 'Toyota Mark X', price: 6500, category: 'sedan' },
-  { id: 'fielder', name: 'Toyota Fielder', price: 4000, category: 'economy' },
-  { id: 'axela', name: 'Mazda Axela', price: 4500, category: 'economy' },
-  { id: 'demio', name: 'Mazda Demio', price: 3500, category: 'economy' }
-];
-
-/* ============================================================
-   SECTION 7: Fleet Availability Management (localStorage)
-   ============================================================ */
-
-/**
- * Get availability status of a car
- * Returns: "available", "booked", or "maintenance"
- */
 function getCarAvailability(carId) {
   const stored = localStorage.getItem('carAvailability');
   if (!stored) return 'available';
@@ -270,10 +243,6 @@ function getCarAvailability(carId) {
   return avail[carId] || 'available';
 }
 
-/**
- * Set availability status of a car
- * Saves to localStorage for persistence
- */
 function setCarAvailability(carId, status) {
   const stored = localStorage.getItem('carAvailability');
   const avail = stored ? JSON.parse(stored) : {};
@@ -281,10 +250,6 @@ function setCarAvailability(carId, status) {
   localStorage.setItem('carAvailability', JSON.stringify(avail));
 }
 
-/**
- * Get all vehicle availability data
- * Returns an object with all vehicle statuses
- */
 function getAvailability() {
   const stored = localStorage.getItem('carAvailability');
   if (stored) return JSON.parse(stored);
@@ -293,17 +258,10 @@ function getAvailability() {
   return defaultAvail;
 }
 
-/**
- * Save all vehicle availability data
- */
 function saveAvailability(data) {
   localStorage.setItem('carAvailability', JSON.stringify(data));
 }
 
-/**
- * Update availability badges on the fleet page
- * This reads the current status from localStorage and updates the UI
- */
 function updateAvailabilityBadges() {
   const cards = document.querySelectorAll('.car-card');
   cards.forEach(card => {
@@ -328,24 +286,12 @@ function updateAvailabilityBadges() {
 }
 
 /* ============================================================
-   SECTION 8: DOM Helpers
+   SECTION 7: DOM Helpers & Toast
    ============================================================ */
 
-/**
- * Shortcut for document.querySelector
- */
 const $ = (sel, ctx) => (ctx || document).querySelector(sel);
-
-/**
- * Shortcut for document.querySelectorAll
- * Returns an array (not a NodeList)
- */
 const $$ = (sel, ctx) => [...(ctx || document).querySelectorAll(sel)];
 
-/**
- * Show a toast notification to the user
- * Used for success/error messages on the customer side
- */
 function showToast(message, type) {
   type = type || 'success';
   const toast = document.getElementById('toast');
@@ -358,10 +304,6 @@ function showToast(message, type) {
   }, 5000);
 }
 
-/**
- * Show a toast notification for the admin dashboard
- * Separate function for admin-specific messages
- */
 function showAdminToast(message, type) {
   type = type || 'success';
   const toast = document.getElementById('adminToast');
@@ -375,26 +317,18 @@ function showAdminToast(message, type) {
 }
 
 /* ============================================================
-   SECTION 9: Dark Mode
+   SECTION 8: Dark Mode, Navbar, Hero Date, etc.
    ============================================================ */
 
-/**
- * Initialize dark mode toggle
- * Saves preference in localStorage so it persists across sessions
- */
 function initDarkMode() {
   const btn = document.getElementById('darkModeBtn');
   const icon = document.getElementById('darkModeIcon');
   if (!btn) return;
-
-  // Load saved preference
   const saved = localStorage.getItem('mcDarkMode');
   if (saved === 'true') {
     document.body.classList.add('dark');
     if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
   }
-
-  // Toggle on button click
   btn.addEventListener('click', function() {
     const isDark = document.body.classList.toggle('dark');
     localStorage.setItem('mcDarkMode', isDark);
@@ -405,41 +339,26 @@ function initDarkMode() {
   });
 }
 
-/* ============================================================
-   SECTION 10: Navbar
-   ============================================================ */
-
-/**
- * Initialize navigation bar
- * - Adds scroll shadow effect
- * - Handles mobile hamburger menu
- */
 function initNavbar() {
   const navbar = document.getElementById('navbar');
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
   if (!navbar) return;
-
-  // Add shadow on scroll
   window.addEventListener('scroll', function() {
     navbar.classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
-
-  // Mobile hamburger menu toggle
   if (hamburger && navLinks) {
     hamburger.addEventListener('click', function() {
       const open = navLinks.classList.toggle('open');
       hamburger.classList.toggle('active', open);
       hamburger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     });
-    // Close menu when a link is clicked
     navLinks.querySelectorAll('a').forEach(function(a) {
       a.addEventListener('click', function() {
         navLinks.classList.remove('open');
         hamburger.classList.remove('active');
       });
     });
-    // Close menu when clicking outside
     document.addEventListener('click', function(e) {
       if (!navbar.contains(e.target)) {
         navLinks.classList.remove('open');
@@ -449,13 +368,6 @@ function initNavbar() {
   }
 }
 
-/* ============================================================
-   SECTION 11: Hero Date
-   ============================================================ */
-
-/**
- * Set hero section date picker to today's date
- */
 function initHeroDate() {
   const heroDate = document.getElementById('heroDate');
   if (!heroDate) return;
@@ -464,48 +376,28 @@ function initHeroDate() {
   heroDate.min = toDateString(today);
 }
 
-/* ============================================================
-   SECTION 12: Fleet Search Filter
-   ============================================================ */
-
-/**
- * Initialize fleet search filter
- * Filters cars in real-time as the user types
- */
 function initFleetFilter() {
   const searchInput = document.getElementById('fleetSearch');
   const cards = document.querySelectorAll('.car-card');
   const noResults = document.getElementById('noResults');
   if (!searchInput) return;
-
   function applyFilters() {
     const query = searchInput.value.toLowerCase().trim();
     let visible = 0;
-
     cards.forEach(function(card) {
       const title = (card.querySelector('.car-title')?.textContent || '').toLowerCase();
       const show = !query || title.includes(query);
       card.style.display = show ? '' : 'none';
       if (show) visible++;
     });
-
     if (noResults) {
       noResults.style.display = visible === 0 ? 'block' : 'none';
     }
   }
-
   searchInput.addEventListener('input', applyFilters);
-  applyFilters(); // Initialize on page load
+  applyFilters();
 }
 
-/* ============================================================
-   SECTION 13: Scroll Reveal Animations
-   ============================================================ */
-
-/**
- * Animate elements when they scroll into view
- * Uses Intersection Observer API for performance
- */
 function initScrollReveal() {
   const elements = document.querySelectorAll('.reveal');
   if (!elements.length || !('IntersectionObserver' in window)) {
@@ -524,69 +416,50 @@ function initScrollReveal() {
       }
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
   elements.forEach(function(el) { observer.observe(el); });
 }
 
-/* ============================================================
-   SECTION 14: Animated Counters
-   ============================================================ */
-
-/**
- * Animate stats counters when they scroll into view
- */
 function initCounters() {
   const counters = document.querySelectorAll('.stat-number');
-  if (!counters.length || !('IntersectionObserver' in window)) return;
-
-  function animateCounter(el) {
-    const target = parseInt(el.dataset.target, 10);
-    const duration = 1800;
-    const step = 16;
-    const increment = target / (duration / step);
-    let current = 0;
-
-    const timer = setInterval(function() {
-      current += increment;
-      if (current >= target) {
-        current = target;
-        clearInterval(timer);
-      }
-      el.textContent = Math.floor(current);
-    }, step);
+  if (!counters.length) return;
+  if (!('IntersectionObserver' in window)) {
+    counters.forEach(function(el) {
+      el.textContent = el.dataset.target || '0';
+    });
+    return;
   }
-
   const observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        observer.unobserve(entry.target);
+        const el = entry.target;
+        const target = parseInt(el.dataset.target, 10);
+        const duration = 1800;
+        const step = 16;
+        const increment = target / (duration / step);
+        let current = 0;
+        const timer = setInterval(function() {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = Math.floor(current);
+        }, step);
+        observer.unobserve(el);
       }
     });
   }, { threshold: 0.5 });
-
   counters.forEach(function(c) { observer.observe(c); });
 }
 
-/* ============================================================
-   SECTION 15: Testimonial Slider
-   ============================================================ */
-
-/**
- * Auto-sliding testimonial carousel
- * Also supports touch/swipe on mobile
- */
 function initTestimonialSlider() {
   const track = document.getElementById('testimonialTrack');
   const dotsWrap = document.getElementById('sliderDots');
   if (!track) return;
-
   const cards = track.querySelectorAll('.testimonial-card');
   const total = cards.length;
   let current = 0;
   let autoTimer = null;
-
-  // Create dots
   if (dotsWrap) {
     cards.forEach(function(_, i) {
       const dot = document.createElement('button');
@@ -596,7 +469,6 @@ function initTestimonialSlider() {
       dotsWrap.appendChild(dot);
     });
   }
-
   function goTo(index) {
     current = (index + total) % total;
     track.style.transform = 'translateX(-' + (current * 100) + '%)';
@@ -606,22 +478,16 @@ function initTestimonialSlider() {
       });
     }
   }
-
-  // Auto-play
   function startAuto() {
     autoTimer = setInterval(function() { goTo(current + 1); }, 4500);
   }
   function stopAuto() { clearInterval(autoTimer); }
-
   startAuto();
-  // Pause on hover
   const wrap = track.closest('.testimonial-slider-wrap');
   if (wrap) {
     wrap.addEventListener('mouseenter', stopAuto);
     wrap.addEventListener('mouseleave', startAuto);
   }
-
-  // Touch/Swipe support
   let touchStartX = 0;
   track.addEventListener('touchstart', function(e) {
     touchStartX = e.touches[0].clientX;
@@ -634,13 +500,6 @@ function initTestimonialSlider() {
   }, { passive: true });
 }
 
-/* ============================================================
-   SECTION 16: Back to Top
-   ============================================================ */
-
-/**
- * Show/hide back-to-top button based on scroll position
- */
 function initBackToTop() {
   const btn = document.getElementById('backToTop');
   if (!btn) return;
@@ -652,14 +511,6 @@ function initBackToTop() {
   });
 }
 
-/* ============================================================
-   SECTION 17: Lazy Image Loading
-   ============================================================ */
-
-/**
- * Lazy load images using Intersection Observer
- * Images load only when they're about to enter the viewport
- */
 function initLazyImages() {
   const images = document.querySelectorAll('img[data-src]');
   if (!images.length || !('IntersectionObserver' in window)) {
@@ -676,17 +527,9 @@ function initLazyImages() {
       }
     });
   }, { rootMargin: '200px' });
-
   images.forEach(function(img) { observer.observe(img); });
 }
 
-/* ============================================================
-   SECTION 18: Footer Year
-   ============================================================ */
-
-/**
- * Update footer copyright year dynamically
- */
 function initFooterYear() {
   document.querySelectorAll('#footerYear').forEach(function(el) {
     el.textContent = new Date().getFullYear();
@@ -694,28 +537,32 @@ function initFooterYear() {
 }
 
 /* ============================================================
-   SECTION 19: Admin Login
+   SECTION 9: Admin Login
    ============================================================ */
 
-/**
- * Simple password-protected admin login
- * Redirects to admin dashboard on success
- */
 function initAdminLogin() {
   const loginBtn = document.getElementById('loginBtn');
   const passwordInput = document.getElementById('adminLoginPassword');
   const errorEl = document.getElementById('loginError');
 
-  if (!loginBtn || !passwordInput) return;
+  if (!loginBtn || !passwordInput) {
+    console.warn('[WARN] Admin login elements not found.');
+    return;
+  }
+
+  console.log('[INFO] Admin login initialized.');
 
   function handleLogin() {
     const input = passwordInput.value;
-    if (input === ADMIN_CONFIG.password) {
+    console.log('[INFO] Login attempt.');
+    if (input === ADMIN_PASSWORD) {
+      console.log('[OK] Login successful, redirecting to admin.html');
       window.location.href = 'admin.html';
     } else {
       if (errorEl) errorEl.style.display = 'block';
       passwordInput.value = '';
       passwordInput.focus();
+      console.warn('[WARN] Incorrect password.');
     }
   }
 
@@ -726,23 +573,25 @@ function initAdminLogin() {
 }
 
 /* ============================================================
-   SECTION 20: Admin Fleet Management
+   SECTION 10: Admin Fleet Panel
    ============================================================ */
 
-/**
- * Fleet management panel for admin
- * Allows toggling vehicle availability
- */
+// Store render function globally so it can be called from loadVehicles
+let renderAdminFleet = null;
+
 function initAdminFleet() {
   const grid = document.getElementById('adminGrid');
   const saveBtn = document.getElementById('saveChanges');
   const logoutBtn = document.getElementById('logoutBtn');
-
   if (!grid) return;
 
-  function renderAdminFleet() {
+  // Define the render function
+  renderAdminFleet = function() {
     const avail = getAvailability();
-
+    if (VEHICLES_DATA.length === 0) {
+      grid.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-secondary);">Loading vehicles...</p>';
+      return;
+    }
     grid.innerHTML = VEHICLES_DATA.map(function(v) {
       const status = avail[v.id] || 'available';
       let statusLabel = 'Available';
@@ -754,7 +603,6 @@ function initAdminFleet() {
         statusLabel = 'In Maintenance';
         statusClass = 'maintenance';
       }
-
       return '<div class="admin-card" data-id="' + v.id + '">' +
         '<div class="name">' + v.name + '</div>' +
         '<div class="price">KSh ' + v.price.toLocaleString() + ' / day</div>' +
@@ -767,7 +615,6 @@ function initAdminFleet() {
         '</div>';
     }).join('');
 
-    // Add click handlers to status buttons
     grid.querySelectorAll('.admin-card .btn-group button').forEach(function(btn) {
       btn.addEventListener('click', function() {
         const id = this.dataset.id;
@@ -775,50 +622,53 @@ function initAdminFleet() {
         const avail = getAvailability();
         avail[id] = newStatus;
         saveAvailability(avail);
-        renderAdminFleet();
+        if (typeof renderAdminFleet === 'function') {
+          renderAdminFleet();
+        }
         showAdminToast('Status updated for ' + id, 'success');
       });
     });
-  }
+  };
+
+  // Also expose to window for loadVehicles to call
+  window.renderAdminFleet = renderAdminFleet;
 
   if (saveBtn) {
     saveBtn.addEventListener('click', function() {
       showAdminToast('All changes saved locally', 'success');
     });
   }
-
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function() {
       window.location.href = 'admin-login.html';
     });
   }
 
-  renderAdminFleet();
+  // Initial render (if vehicles are already loaded)
+  if (VEHICLES_DATA.length > 0) {
+    renderAdminFleet();
+  } else {
+    // Show loading state
+    grid.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-secondary);">Loading vehicles...</p>';
+  }
 }
 
 /* ============================================================
-   SECTION 21: Booking Page
+   SECTION 11: Booking Page
    ============================================================ */
 
-/**
- * Initialize booking page
- * - Populates vehicle dropdown with availability status
- * - Sets default dates
- * - Handles URL parameters for pre-selection
- */
 function initBookingPage() {
   const vehicleSelect = document.getElementById('vehicleSelect');
   const pickupDateInput = document.getElementById('pickupDate');
   const returnDateInput = document.getElementById('returnDate');
   const locationSelect = document.getElementById('pickupLocation');
-
   if (!vehicleSelect) return;
 
-  /**
-   * Populate vehicle dropdown with options
-   * Disables cars that are booked or in maintenance
-   */
   function populateVehicleOptions() {
+    if (VEHICLES_DATA.length === 0) {
+      vehicleSelect.innerHTML = '<option value="">-- Loading vehicles... --</option>';
+      return;
+    }
     const currentVal = vehicleSelect.value;
     vehicleSelect.innerHTML = '<option value="">-- Choose your vehicle --</option>';
     VEHICLES_DATA.forEach(function(v) {
@@ -838,7 +688,6 @@ function initBookingPage() {
       }
       vehicleSelect.appendChild(opt);
     });
-    // Restore previous selection if it exists
     if (currentVal) {
       const options = vehicleSelect.options;
       for (let i = 0; i < options.length; i++) {
@@ -852,14 +701,12 @@ function initBookingPage() {
 
   populateVehicleOptions();
 
-  // Set default dates: tomorrow for pickup, 4 days later for return
   const today = new Date();
   const pickup = new Date(today);
   pickup.setDate(today.getDate() + 1);
   const ret = new Date(today);
   ret.setDate(today.getDate() + 4);
   const todayStr = toDateString(today);
-
   if (pickupDateInput) {
     pickupDateInput.min = todayStr;
     pickupDateInput.value = toDateString(pickup);
@@ -869,7 +716,6 @@ function initBookingPage() {
     returnDateInput.value = toDateString(ret);
   }
 
-  // Pre-fill vehicle from URL parameters (e.g., from "Book Now" button)
   const params = getQueryParams();
   if (params.car) {
     const options = vehicleSelect.options;
@@ -883,23 +729,13 @@ function initBookingPage() {
 }
 
 /* ============================================================
-   SECTION 22: Booking Form (Main Logic)
+   SECTION 12: Booking Form
    ============================================================ */
 
-/**
- * Handle booking form submission
- * - Validates form fields
- * - Calculates total cost (rental + delivery fee)
- * - Sends confirmation emails
- * - Saves booking to Firebase
- */
 function initBookingForm() {
   const form = document.getElementById('bookingForm');
   if (!form) return;
 
-  /**
-   * Show/hide error messages for form fields
-   */
   function setError(inputId, errId, show) {
     const input = document.getElementById(inputId);
     const err = document.getElementById(errId);
@@ -908,9 +744,6 @@ function initBookingForm() {
     return show;
   }
 
-  /**
-   * Get selected pickup type (Self Pickup or Car Delivery)
-   */
   function getSelectedPickupType() {
     const radios = document.querySelectorAll('input[name="pickupType"]');
     let type = 'self';
@@ -924,9 +757,6 @@ function initBookingForm() {
     return { type: type, label: label };
   }
 
-  /**
-   * Fallback method: open mailto links if EmailJS fails
-   */
   function sendEmailFallback(bookingData) {
     const subject = 'Booking Request - ' + bookingData.booking_id;
     const body = 'Name: ' + bookingData.name + '%0A' +
@@ -942,15 +772,10 @@ function initBookingForm() {
                  'Location: ' + bookingData.location + '%0A' +
                  'Pickup Method: ' + bookingData.pickup_type + '%0A' +
                  'Requests: ' + bookingData.requests;
-
     window.open('mailto:' + bookingData.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
     window.open('mailto:' + EMAILJS_CONFIG.ownerEmail + '?subject=' + encodeURIComponent('New Booking - ' + bookingData.booking_id) + '&body=' + encodeURIComponent(body), '_blank');
   }
 
-  /**
-   * Send emails via EmailJS
-   * Customer receives confirmation, owner receives notification
-   */
   function sendEmails(bookingData) {
     return new Promise(function(resolve, reject) {
       if (typeof emailjs === 'undefined') {
@@ -958,8 +783,6 @@ function initBookingForm() {
         reject(new Error('EmailJS not loaded'));
         return;
       }
-
-      // Customer email parameters
       const customerParams = {
         to_email: bookingData.email,
         name: bookingData.name,
@@ -977,8 +800,6 @@ function initBookingForm() {
         pickup_type: bookingData.pickup_type,
         requests: bookingData.requests
       };
-
-      // Owner email parameters
       const ownerParams = {
         to_email: EMAILJS_CONFIG.ownerEmail,
         name: bookingData.name,
@@ -997,11 +818,8 @@ function initBookingForm() {
         pickup_type: bookingData.pickup_type,
         requests: bookingData.requests
       };
-
       console.log('[INFO] Sending customer email to:', customerParams.to_email);
       console.log('[INFO] Sending owner email to:', ownerParams.to_email);
-
-      // Send both emails simultaneously
       Promise.all([
         emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.customerTemplate, customerParams, EMAILJS_CONFIG.publicKey),
         emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.ownerTemplate, ownerParams, EMAILJS_CONFIG.publicKey)
@@ -1025,9 +843,6 @@ function initBookingForm() {
     });
   }
 
-  /**
-   * Save booking to Firebase Firestore
-   */
   function saveToFirebase(bookingData) {
     return new Promise(function(resolve, reject) {
       if (!db) {
@@ -1035,7 +850,6 @@ function initBookingForm() {
         reject(new Error('Firestore not available'));
         return;
       }
-
       console.log('[INFO] Saving to Firebase:', bookingData);
       db.collection('bookings').add({
         booking_id: bookingData.booking_id,
@@ -1068,14 +882,9 @@ function initBookingForm() {
     });
   }
 
-  /**
-   * Main form submission handler
-   */
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     let hasError = false;
-
-    // Get form values
     const name = document.getElementById('fieldName')?.value.trim() || '';
     const email = document.getElementById('fieldEmail')?.value.trim() || '';
     const phone = document.getElementById('fieldPhone')?.value.trim() || '';
@@ -1083,10 +892,8 @@ function initBookingForm() {
     const ret = document.getElementById('returnDate')?.value || '';
     const loc = document.getElementById('pickupLocation')?.value || '';
     const vehicle = document.getElementById('vehicleSelect')?.value || '';
-
     const pickupType = getSelectedPickupType();
 
-    // Validate each field
     if (setError('fieldName', 'errName', !name || name.length < 2)) hasError = true;
     if (setError('fieldEmail', 'errEmail', !email || !validateEmail(email))) hasError = true;
     if (phone && setError('fieldPhone', 'errPhone', !validatePhone(phone))) hasError = true;
@@ -1095,7 +902,6 @@ function initBookingForm() {
     if (setError('pickupLocation', 'errLocation', !loc)) hasError = true;
     if (setError('vehicleSelect', 'errVehicle', !vehicle)) hasError = true;
 
-    // Check vehicle availability
     if (!hasError && vehicle) {
       const parts = vehicle.split('|');
       const available = parts[3] === 'true';
@@ -1113,13 +919,11 @@ function initBookingForm() {
       return;
     }
 
-    // Show loading state
     const btn = document.getElementById('submitBtn');
     const originalHTML = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     btn.disabled = true;
 
-    // Calculate costs
     const vehicleParts = vehicle.split('|');
     const carName = vehicleParts[0];
     const dailyRate = parseInt(vehicleParts[1], 10) || 0;
@@ -1128,17 +932,11 @@ function initBookingForm() {
     const deliveryFee = pickupType.type === 'delivery' ? DELIVERY_FEE : 0;
     const total = rentalTotal + deliveryFee;
 
-    // Get location label
-    const LOCATION_LABELS = {
-      westlands: 'Nairobi - Westlands',
-      jkia: 'JKIA Airport'
-    };
+    const LOCATION_LABELS = { westlands: 'Nairobi - Westlands', jkia: 'JKIA Airport' };
     const locationLabel = LOCATION_LABELS[loc] || loc || 'Not specified';
 
-    // Generate booking ID
     const bookingId = generateBookingId();
 
-    // Build booking data object
     const bookingData = {
       booking_id: bookingId,
       name: name,
@@ -1162,7 +960,6 @@ function initBookingForm() {
     let firebaseSaved = false;
     let emailError = null;
 
-    // Send emails
     sendEmails(bookingData)
       .then(function() {
         emailSent = true;
@@ -1175,7 +972,6 @@ function initBookingForm() {
         emailSent = true;
       });
 
-    // Save to Firebase
     saveToFirebase(bookingData)
       .then(function() {
         firebaseSaved = true;
@@ -1186,11 +982,9 @@ function initBookingForm() {
         showToast('Could not save booking to database. Please contact support.', 'error');
       });
 
-    // Show success message after processing
     setTimeout(function() {
       btn.innerHTML = originalHTML;
       btn.disabled = false;
-
       const formWrap = document.getElementById('bookingFormWrap');
       const success = document.getElementById('bookingSuccess');
       if (formWrap) formWrap.style.display = 'none';
@@ -1213,12 +1007,10 @@ function initBookingForm() {
         toastMessage += ' A delivery fee of ' + formatKSh(deliveryFee) + ' has been added.';
       }
       showToast(toastMessage);
-
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 2000);
   });
 
-  // Clear errors on input
   form.querySelectorAll('input, select, textarea').forEach(function(el) {
     el.addEventListener('input', function() { el.classList.remove('error'); });
     el.addEventListener('change', function() { el.classList.remove('error'); });
@@ -1226,16 +1018,12 @@ function initBookingForm() {
 }
 
 /* ============================================================
-   SECTION 23: Contact Form
+   SECTION 13: Contact Form
    ============================================================ */
 
-/**
- * Initialize contact form with validation
- */
 function initContactForm() {
   const form = document.getElementById('contactForm');
   if (!form) return;
-
   function setError(inputId, errId, show) {
     const input = document.getElementById(inputId);
     const err = document.getElementById(errId);
@@ -1243,33 +1031,23 @@ function initContactForm() {
     if (err) err.style.display = show ? 'block' : 'none';
     return show;
   }
-
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     let hasError = false;
-
     const name = document.getElementById('contactName')?.value.trim() || '';
     const email = document.getElementById('contactEmail')?.value.trim() || '';
     const msg = document.getElementById('contactMessage')?.value.trim() || '';
-
     if (setError('contactName', 'errContactName', !name || name.length < 2)) hasError = true;
     if (setError('contactEmail', 'errContactEmail', !email || !validateEmail(email))) hasError = true;
     if (setError('contactMessage', 'errContactMsg', !msg || msg.length < 10)) hasError = true;
-
-    if (hasError) {
-      showToast('Please fill in the required fields.', 'error');
-      return;
-    }
-
+    if (hasError) { showToast('Please fill in the required fields.', 'error'); return; }
     const btn = document.getElementById('contactSubmitBtn');
     const originalHTML = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
     btn.disabled = true;
-
     setTimeout(function() {
       btn.innerHTML = originalHTML;
       btn.disabled = false;
-
       const formWrap = document.getElementById('contactFormWrap');
       const success = document.getElementById('contactSuccess');
       if (formWrap) formWrap.style.display = 'none';
@@ -1277,24 +1055,15 @@ function initContactForm() {
       showToast('Message sent! We\'ll get back to you soon.');
     }, 1500);
   });
-
   form.querySelectorAll('input, textarea').forEach(function(el) {
     el.addEventListener('input', function() { el.classList.remove('error'); });
   });
 }
 
 /* ============================================================
-   SECTION 24: Admin Dashboard
+   SECTION 14: Admin Dashboard
    ============================================================ */
 
-/**
- * Admin dashboard with real-time booking management
- * - Displays all bookings with filter and search
- * - Shows quick stats and booking activity chart
- * - Allows status updates (Pending, Confirmed, Completed, Cancelled)
- * - Syncs status changes with fleet availability
- * - Exports data to CSV
- */
 function initAdminDashboard() {
   const bookingsBody = document.getElementById('bookingsBody');
   const loadingState = document.getElementById('loadingState');
@@ -1319,11 +1088,7 @@ function initAdminDashboard() {
     return new Date().toISOString().split('T')[0];
   }
 
-  /**
-   * Update quick stats in the dashboard
-   */
   function updateQuickStats(bookings) {
-    // Most popular car
     const carCounts = {};
     bookings.forEach(function(b) {
       if (b.car) {
@@ -1338,8 +1103,6 @@ function initAdminDashboard() {
         mostPopularCar = car;
       }
     }
-
-    // Today's bookings
     const todayStr = getTodayString();
     const todayBookings = bookings.filter(function(b) {
       if (b.pickup_date) {
@@ -1349,8 +1112,6 @@ function initAdminDashboard() {
       }
       return false;
     }).length;
-
-    // Average rental days
     let totalDays = 0;
     let countDays = 0;
     bookings.forEach(function(b) {
@@ -1361,19 +1122,14 @@ function initAdminDashboard() {
       }
     });
     const avgDays = countDays > 0 ? (totalDays / countDays).toFixed(1) : '—';
-
     document.getElementById('mostPopularCar').textContent = mostPopularCar;
     document.getElementById('todayBookings').textContent = todayBookings;
     document.getElementById('avgDays').textContent = avgDays === '—' ? '—' : avgDays + ' days';
   }
 
-  /**
-   * Update the 7-day booking activity chart
-   */
   function updateWeeklyChart(bookings) {
     const chartContainer = document.getElementById('weeklyChart');
     if (!chartContainer) return;
-
     const days = [];
     for (var i = 6; i >= 0; i--) {
       const d = new Date();
@@ -1382,8 +1138,6 @@ function initAdminDashboard() {
       const label = d.toLocaleDateString('en-KE', { weekday: 'short' });
       days.push({ date: dateStr, label: label, count: 0, confirmed: 0 });
     }
-
-    // Count bookings per day
     bookings.forEach(function(b) {
       if (b.created_at) {
         const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
@@ -1398,10 +1152,7 @@ function initAdminDashboard() {
         });
       }
     });
-
     const maxCount = Math.max(1, Math.max.apply(null, days.map(function(d) { return d.count; })));
-
-    // Render bars with tooltips
     chartContainer.innerHTML = days.map(function(day) {
       const heightPercent = (day.count / maxCount) * 100;
       const barHeight = Math.max(4, heightPercent);
@@ -1411,9 +1162,6 @@ function initAdminDashboard() {
     }).join('');
   }
 
-  /**
-   * Populate car filter dropdown with unique car names
-   */
   function populateCarFilter(bookings) {
     const cars = new Set();
     bookings.forEach(function(b) {
@@ -1430,9 +1178,6 @@ function initAdminDashboard() {
     });
   }
 
-  /**
-   * Render bookings table
-   */
   function renderTable(bookings) {
     if (!bookings || bookings.length === 0) {
       tableContent.style.display = 'none';
@@ -1440,7 +1185,6 @@ function initAdminDashboard() {
       loadingState.style.display = 'none';
       return;
     }
-
     tableContent.style.display = 'block';
     emptyState.style.display = 'none';
     loadingState.style.display = 'none';
@@ -1450,10 +1194,8 @@ function initAdminDashboard() {
       const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
       const pickupType = b.pickup_type || 'Self Pickup';
       const totalAmount = b.total || b.rental_total || 'KSh 0';
-
       const pickupDate = b.pickup_date || b.pickup_date_display || '—';
       const returnDate = b.return_date || b.return_date_display || '—';
-
       return '<tr>' +
         '<td><strong>' + (b.booking_id || '—') + '</strong></td>' +
         '<td>' +
@@ -1479,9 +1221,6 @@ function initAdminDashboard() {
         '</tr>';
     }).join('');
 
-    /**
-     * Status change handlers – updates Firebase, syncs fleet availability, refreshes chart
-     */
     bookingsBody.querySelectorAll('.status-select').forEach(function(sel) {
       sel.addEventListener('change', function() {
         const id = this.dataset.id;
@@ -1494,7 +1233,6 @@ function initAdminDashboard() {
               if (booking && booking.car) {
                 const vehicle = VEHICLES_DATA.find(function(v) { return v.name === booking.car; });
                 if (vehicle) {
-                  // Confirmed or Completed → mark as Booked
                   if (newStatus === 'confirmed' || newStatus === 'completed') {
                     setCarAvailability(vehicle.id, 'booked');
                     showAdminToast('Car ' + vehicle.name + ' marked as Booked', 'success');
@@ -1505,7 +1243,6 @@ function initAdminDashboard() {
                   updateAvailabilityBadges();
                 }
               }
-              // Refresh chart and stats after status change
               applyFilters();
             })
             .catch(function(error) {
@@ -1516,7 +1253,6 @@ function initAdminDashboard() {
       });
     });
 
-    // Delete handlers
     bookingsBody.querySelectorAll('.delete-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         const id = this.dataset.id;
@@ -1537,14 +1273,10 @@ function initAdminDashboard() {
     });
   }
 
-  /**
-   * Apply filters to bookings table and stats
-   */
   function applyFilters() {
     const search = (searchInput ? searchInput.value : '').toLowerCase().trim();
     const status = (statusFilter ? statusFilter.value : '');
     const car = (carFilter ? carFilter.value : '');
-
     const filtered = allBookings.filter(function(b) {
       const matchSearch = !search ||
         (b.name && b.name.toLowerCase().includes(search)) ||
@@ -1554,15 +1286,11 @@ function initAdminDashboard() {
       const matchCar = !car || b.car === car;
       return matchSearch && matchStatus && matchCar;
     });
-
     renderTable(filtered);
     updateQuickStats(filtered);
     updateWeeklyChart(filtered);
   }
 
-  /**
-   * Load bookings from Firebase in real-time
-   */
   function loadBookings() {
     if (!db) {
       loadingState.style.display = 'none';
@@ -1570,15 +1298,12 @@ function initAdminDashboard() {
       emptyState.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Firebase not initialized. Please check your configuration.</p>';
       return;
     }
-
     loadingState.style.display = 'block';
     tableContent.style.display = 'none';
     emptyState.style.display = 'none';
-
     if (unsubscribe) {
       unsubscribe();
     }
-
     console.log('[INFO] Loading bookings from Firebase...');
     unsubscribe = db.collection('bookings')
       .orderBy('created_at', 'desc')
@@ -1589,7 +1314,6 @@ function initAdminDashboard() {
           data.id = doc.id;
           allBookings.push(data);
         });
-
         populateCarFilter(allBookings);
         applyFilters();
         console.log('[OK] Loaded ' + allBookings.length + ' bookings from Firebase');
@@ -1602,15 +1326,11 @@ function initAdminDashboard() {
       });
   }
 
-  /**
-   * Export all bookings to CSV file
-   */
   function exportCSV() {
     if (allBookings.length === 0) {
       showAdminToast('No bookings to export', 'error');
       return;
     }
-
     const headers = ['Booking ID', 'Name', 'Email', 'Phone', 'Car', 'Pickup Date', 'Return Date', 'Days', 'Rental Total', 'Delivery Fee', 'Total', 'Pickup Type', 'Status', 'Location', 'Requests'];
     const rows = allBookings.map(function(b) {
       return [
@@ -1631,12 +1351,10 @@ function initAdminDashboard() {
         b.requests || ''
       ];
     });
-
     let csvContent = headers.join(',') + '\n' +
       rows.map(function(row) {
         return row.join(',');
       }).join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1649,7 +1367,6 @@ function initAdminDashboard() {
     showAdminToast('Bookings exported successfully!', 'success');
   }
 
-  // Event listeners
   if (searchInput) searchInput.addEventListener('input', applyFilters);
   if (statusFilter) statusFilter.addEventListener('change', applyFilters);
   if (carFilter) carFilter.addEventListener('change', applyFilters);
@@ -1666,71 +1383,97 @@ function initAdminDashboard() {
 }
 
 /* ============================================================
-   SECTION 25: Bootstrap – Initialize Everything
+   SECTION 15: Bootstrap – Initialize Everything
    ============================================================ */
 
-/**
- * Initialize all functions when the DOM is ready
- */
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     console.log('[INFO] DOM ready - initializing Money Carhire');
-    
-    // Core UI features
+
+    // Core UI features that don't depend on vehicle data
     initDarkMode();
     initNavbar();
     initHeroDate();
-    initFleetFilter();
     initScrollReveal();
     initCounters();
     initTestimonialSlider();
     initBackToTop();
-    updateAvailabilityBadges();
     initLazyImages();
     initFooterYear();
 
-    // Booking features
-    initBookingPage();
+    // Booking and contact forms
     initBookingForm();
     initContactForm();
 
-    // Admin features (detect which admin page we're on)
+    // Admin login (doesn't need vehicle data)
     if (document.getElementById('adminLoginPassword')) {
       initAdminLogin();
     }
-    if (document.getElementById('adminGrid')) {
-      initAdminFleet();
-    }
+
+    // Admin dashboard (needs Firebase, not vehicle data)
     if (document.getElementById('bookingsBody')) {
       initAdminDashboard();
     }
+
+    // Load vehicles first, then init features that need them
+    loadVehicles().then(function() {
+      console.log('[INFO] Vehicles loaded - initializing vehicle-dependent features');
+      
+      if (document.getElementById('vehicleSelect')) {
+        initBookingPage();
+      }
+      
+      if (document.getElementById('adminGrid')) {
+        initAdminFleet();
+      }
+    });
+
+    // ── SECRET ADMIN ACCESS (Ctrl + Shift + A) ──
+    // Press Ctrl + Shift + A anywhere to go to admin login
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        console.log('[ADMIN] Access granted via keyboard shortcut.');
+        
+        // Show toast notification
+        const toast = document.getElementById('toast');
+        if (toast) {
+          toast.textContent = ' Admin access granted...';
+          toast.className = 'toast show success';
+          clearTimeout(toast._timer);
+          toast._timer = setTimeout(function() {
+            toast.classList.remove('show');
+          }, 1500);
+        }
+        
+        // Redirect to admin login
+        window.location.href = 'admin-login.html';
+      }
+    });
   });
 }
 
 /* ============================================================
-   SECTION 26: Export for Jest Testing
+   SECTION 16: Export for Jest
    ============================================================ */
 
-/**
- * Export helper functions for unit testing with Jest
- */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    formatKSh: formatKSh,
-    daysBetween: daysBetween,
-    validateEmail: validateEmail,
-    validatePhone: validatePhone,
-    getQueryParams: getQueryParams,
-    toDateString: toDateString,
-    formatDateDisplay: formatDateDisplay,
-    getCarAvailability: getCarAvailability,
-    setCarAvailability: setCarAvailability,
-    getAvailability: getAvailability,
-    saveAvailability: saveAvailability,
-    updateAvailabilityBadges: updateAvailabilityBadges,
-    VEHICLES_DATA: VEHICLES_DATA,
-    DELIVERY_FEE: DELIVERY_FEE,
-    safeParseNumber: safeParseNumber,
-    formatPhoneForWhatsApp: formatPhoneForWhatsApp
+    formatKSh,
+    daysBetween,
+    validateEmail,
+    validatePhone,
+    getQueryParams,
+    toDateString,
+    formatDateDisplay,
+    getCarAvailability,
+    setCarAvailability,
+    getAvailability,
+    saveAvailability,
+    updateAvailabilityBadges,
+    VEHICLES_DATA: function() { return VEHICLES_DATA; },
+    DELIVERY_FEE,
+    safeParseNumber,
+    formatPhoneForWhatsApp
   };
 }
