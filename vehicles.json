@@ -1,0 +1,74 @@
+[
+  {
+    "id": "g-wagon",
+    "name": "Mercedes G-Wagon",
+    "price": 50000,
+    "category": "suv",
+    "image": "G-wagon.jpg",
+    "badge": "Most Popular"
+  },
+  {
+    "id": "bmw-x6",
+    "name": "BMW X6",
+    "price": 25000,
+    "category": "suv",
+    "image": "BMW X6.jpg"
+  },
+  {
+    "id": "range-rover",
+    "name": "Range Rover Sport",
+    "price": 35000,
+    "category": "suv",
+    "image": "range roverr sport.webp"
+  },
+  {
+    "id": "e350",
+    "name": "Mercedes Benz E350",
+    "price": 10500,
+    "category": "sedan",
+    "image": "benz E350.jpg"
+  },
+  {
+    "id": "audi-a5",
+    "name": "Audi A5",
+    "price": 12500,
+    "category": "sedan",
+    "image": "audi a5.jpg"
+  },
+  {
+    "id": "mazda-cx5",
+    "name": "Mazda CX-5",
+    "price": 7000,
+    "category": "suv",
+    "image": "mazda cx5.jpg"
+  },
+  {
+    "id": "mark-x",
+    "name": "Toyota Mark X",
+    "price": 6500,
+    "category": "sedan",
+    "image": "mark x.jpg"
+  },
+  {
+    "id": "fielder",
+    "name": "Toyota Fielder",
+    "price": 4000,
+    "category": "economy",
+    "image": "toyota fielder.jpg"
+  },
+  {
+    "id": "axela",
+    "name": "Mazda Axela",
+    "price": 4500,
+    "category": "economy",
+    "image": "mazda axela.jpg"
+  },
+  {
+    "id": "demio",
+    "name": "Mazda Demio",
+    "price": 3500,
+    "category": "economy",
+    "image": "mazda demio.jpg",
+    "badge": "Best Value"
+  }
+]
