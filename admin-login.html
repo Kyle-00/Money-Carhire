@@ -75,14 +75,16 @@
     <div class="login-card">
       <h1><i class="fas fa-lock"></i> Admin Login</h1>
       <p>Enter your credentials to manage the fleet.</p>
-      <input type="password" id="adminLoginPassword" placeholder="Enter admin password..." autofocus>
+      <!-- NEW: Username field -->
+      <input type="text" id="adminLoginUsername" placeholder="Username" autofocus>
+      <input type="password" id="adminLoginPassword" placeholder="Password">
       <button id="loginBtn">Login</button>
-      <p class="login-error" id="loginError">Incorrect password. Please try again.</p>
+      <p class="login-error" id="loginError">Invalid username or password. Please try again.</p>
       <div class="back-link"><a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></div>
     </div>
   </div>
-  <!-- Load config first, then script -->
+  <!-- Load config first, then app -->
   <script src="config.js"></script>
-  <script src="script.js"></script>
+  <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
