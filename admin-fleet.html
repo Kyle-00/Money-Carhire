@@ -56,9 +56,6 @@
     .status-badge.available { background: #27ae60; color: #fff; }
     .status-badge.booked { background: #e74c3c; color: #fff; }
     .status-badge.maintenance { background: #f39c12; color: #fff; }
-    .status-text-available { color: #27ae60; }
-    .status-text-booked { color: #e74c3c; }
-    .status-text-maintenance { color: #f39c12; }
     .admin-card .btn-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .admin-card .btn-group button {
       padding: 0.5rem;
@@ -133,9 +130,6 @@
     .nav-admin a:hover { background: rgba(201,160,61,0.1); color: var(--accent-gold); }
     .nav-admin a.active { background: var(--accent-gold); color: #111; }
     .admin-actions { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
-    .status-available { color: #27ae60; }
-    .status-booked { color: #e74c3c; }
-    .status-maintenance { color: #f39c12; }
 
     @media (max-width: 768px) {
       .admin-header { flex-direction: column; align-items: stretch; }
@@ -176,12 +170,14 @@
           <li>Click a status button to change a car's availability.</li>
           <li>Click <strong>"Save Changes"</strong> to persist the updates.</li>
           <li>The main website will automatically reflect the new statuses.</li>
-          <li>Statuses: <span class="status-text-available">Available</span> (bookable), <span class="status-text-booked">Booked</span> (unavailable), <span class="status-text-maintenance">Maintenance</span> (temporarily off).</li>
+          <li>Statuses: <span class="status-badge available">Available</span> (bookable), <span class="status-badge booked">Booked</span> (unavailable), <span class="status-badge maintenance">Maintenance</span> (temporarily off).</li>
         </ul>
       </div>
     </div>
   </div>
 
+  <!-- Load config first, then script -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
