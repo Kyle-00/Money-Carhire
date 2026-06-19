@@ -6,11 +6,11 @@
   <title>Admin Dashboard - Money Carhire</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  
+
   <style>
     /* ── Admin Dashboard Styles ── */
     .admin-wrapper {
@@ -84,53 +84,108 @@
       color: var(--accent-gold);
     }
 
+    /* ── Chart Container (updated for axis and labels) ── */
     .mini-chart {
       display: flex;
-      align-items: flex-end;
-      gap: 6px;
-      height: 60px;
-      padding-top: 10px;
+      flex-direction: column;
+      height: 140px;          /* Increased to fit labels */
+      width: 100%;
     }
-    .mini-chart .bar {
+
+    /* The bars area (flex row with bottom border) */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      height: 100%;
+      border-bottom: 2px solid var(--text-secondary);
+      padding-bottom: 4px;
+    }
+
+    /* Each bar column wrapper */
+    .bar-wrapper {
       flex: 1;
-      border-radius: 4px 4px 0 0;
-      min-height: 4px;
-      transition: height 0.4s ease;
-      background: var(--accent-gold);
-      opacity: 0.7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
       position: relative;
     }
-    .mini-chart .bar:hover { opacity: 1; }
-    .mini-chart .bar .bar-tooltip {
+
+    /* The bar itself */
+    .bar {
+      width: 70%;
+      border-radius: 4px 4px 0 0;
+      min-height: 0;
+      transition: height 0.4s ease;
+      position: relative;
+      cursor: pointer;
+      background-color: var(--accent-gold);
+      opacity: 0.7;
+    }
+    .bar:hover {
+      opacity: 1;
+    }
+
+    /* Tooltip on hover */
+    .bar-tooltip {
       position: absolute;
       bottom: calc(100% + 6px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.6rem;
+      font-size: 0.65rem;
       background: var(--bg-surface);
-      padding: 2px 6px;
+      padding: 4px 8px;
       border-radius: 4px;
       box-shadow: var(--card-shadow);
       white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
+      display: none;
       color: var(--text-primary);
       border: 1px solid var(--glass-border);
+      z-index: 10;
+      pointer-events: none;
     }
-    .mini-chart .bar:hover .bar-tooltip { opacity: 1; }
+    .bar:hover .bar-tooltip {
+      display: block;
+    }
+
+    /* Day labels below the axis */
+    .chart-labels {
+      display: flex;
+      margin-top: 2px;
+    }
+    .day-label {
+      flex: 1;
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      padding-top: 2px;
+    }
 
     .chart-legend {
       display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
-      font-size: 0.7rem;
+      gap: 1.2rem;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
-    .chart-legend span { display: flex; align-items: center; gap: 4px; }
-    .chart-legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .chart-legend .dot.gold { background: var(--accent-gold); }
-    .chart-legend .dot.green { background: #27ae60; }
+    .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chart-legend .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .chart-legend .dot.gold {
+      background: var(--accent-gold);
+    }
+    .chart-legend .dot.green {
+      background: #27ae60;
+    }
 
     .quick-stats {
       display: flex;
@@ -144,10 +199,19 @@
       border-bottom: 1px solid var(--glass-border);
       font-size: 0.85rem;
     }
-    .quick-stat-item:last-child { border-bottom: none; }
-    .quick-stat-item .qs-label { color: var(--text-secondary); }
-    .quick-stat-item .qs-value { font-weight: 600; color: var(--text-primary); }
-    .quick-stat-item .qs-value.gold { color: var(--accent-gold); }
+    .quick-stat-item:last-child {
+      border-bottom: none;
+    }
+    .quick-stat-item .qs-label {
+      color: var(--text-secondary);
+    }
+    .quick-stat-item .qs-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .quick-stat-item .qs-value.gold {
+      color: var(--accent-gold);
+    }
 
     .filters-bar {
       display: flex;
@@ -329,9 +393,16 @@
       pointer-events: none;
       z-index: 999;
     }
-    .toast.show { opacity: 1; pointer-events: all; }
-    .toast.success { background: #27ae60; }
-    .toast.error { background: #e74c3c; }
+    .toast.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .toast.success {
+      background: #27ae60;
+    }
+    .toast.error {
+      background: #e74c3c;
+    }
 
     .loading-spinner {
       text-align: center;
@@ -349,23 +420,48 @@
     .hidden {
       display: none;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
 
+    /* ── Responsive ── */
     @media (max-width: 1024px) {
-      .stats-chart-row { grid-template-columns: 1fr; }
+      .stats-chart-row {
+        grid-template-columns: 1fr;
+      }
     }
     @media (max-width: 768px) {
-      .admin-header { flex-direction: column; align-items: stretch; }
-      .filters-bar { flex-direction: column; align-items: stretch; }
-      .filters-bar .filter-actions { margin-left: 0; }
-      table { font-size: 0.75rem; }
-      table th, table td { padding: 6px 8px; }
+      .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters-bar .filter-actions {
+        margin-left: 0;
+      }
+      table {
+        font-size: 0.75rem;
+      }
+      table th,
+      table td {
+        padding: 6px 8px;
+      }
+      .mini-chart {
+        height: 100px; /* smaller on tablets */
+      }
     }
     @media (max-width: 480px) {
-      .admin-wrapper { padding: 0 0.75rem; }
+      .admin-wrapper {
+        padding: 0 0.75rem;
+      }
+      .mini-chart {
+        height: 80px;
+      }
     }
   </style>
 </head>
@@ -403,6 +499,7 @@
             <h3><i class="fas fa-chart-bar accent-gold-icon"></i> Booking Activity (Last 7 Days)</h3>
             <span class="chart-badge"><i class="fas fa-calendar-alt"></i> Recent</span>
           </div>
+          <!-- The chart container will be populated by JavaScript -->
           <div class="mini-chart" id="weeklyChart"></div>
           <div class="chart-legend">
             <span><span class="dot gold"></span> Bookings</span>
@@ -482,8 +579,9 @@
     </div>
   </div>
 
-  <!-- Load config first, then script -->
+  <!-- Load config first, then guard, then app -->
   <script src="config.js"></script>
-  <script src="script.js"></script>
+  <script src="scripts/admin-guard.js"></script>
+  <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
