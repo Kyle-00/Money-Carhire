@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="responsive.css">
   <style>
-    /* Utility class to hide elements instead of inline styles */
-    .hidden { display: none !important; }
+    /* moved inline style from #noResults element to here to avoid inline styles */
+    .no-results{display:none;}
   </style>
 </head>
 <body>
@@ -62,17 +62,14 @@
         <p class="hero-sub">Unleash prestige with Kenya's finest fleet — delivered to your door.</p>
         <div class="hero-search">
           <div class="search-form">
-            <!-- Location - Fixed, non-editable -->
             <div class="search-group search-group-location">
               <i class="fas fa-map-marker-alt"></i>
-              <input type="text" id="heroLocation" value="Nairobi, Kenya" readonly aria-label="Pickup location" title="Pickup location">
+              <input type="text" id="heroLocation" value="Nairobi, Kenya" readonly title="Pick-up location" aria-label="Pick-up location">
             </div>
-            <!-- Date - Set to today's date by JavaScript -->
             <div class="search-group">
               <i class="fas fa-calendar-alt"></i>
               <input type="date" id="heroDate" title="Pick-up date" aria-label="Pick-up date">
             </div>
-            <!-- Explore Fleet Button -->
             <a href="#fleet" class="btn-gold">Explore Fleet <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
@@ -117,212 +114,10 @@
       </div>
 
       <div class="cars-grid" id="carsGrid">
-
-        <!-- Car 1: Mercedes G-Wagon -->
-        <div class="car-card reveal" data-category="suv" data-car-id="g-wagon">
-          <div class="car-badge">Most Popular</div>
-          <span class="availability-badge" id="badge-g-wagon">Available</span>
-          <img class="car-img" data-src="assets/images/G-wagon.jpg" src="assets/images/G-wagon.jpg" alt="Mercedes G-Wagon" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Mercedes G-Wagon</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> V8</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.8</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 50,000 <span>/ day</span></div>
-            <a href="booking.html?car=Mercedes%20G-Wagon&price=50000&category=suv" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 2: BMW X6 -->
-        <div class="car-card reveal" data-category="suv" data-car-id="bmw-x6">
-          <span class="availability-badge" id="badge-bmw-x6">Available</span>
-          <img class="car-img" data-src="assets/images/BMW X6.jpg" src="assets/images/BMW X6.jpg" alt="BMW X6" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">BMW X6</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> Straight-6</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.5</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 25,000 <span>/ day</span></div>
-            <a href="booking.html?car=BMW%20X6&price=25000&category=suv" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 3: Range Rover Sport -->
-        <div class="car-card reveal" data-category="suv" data-car-id="range-rover">
-          <span class="availability-badge" id="badge-range-rover">Available</span>
-          <img class="car-img" data-src="assets/images/range roverr sport.webp" src="assets/images/range roverr sport.webp" alt="Range Rover Sport" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Range Rover Sport</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> V6</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.7</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 35,000 <span>/ day</span></div>
-            <a href="booking.html?car=Range%20Rover%20Sport&price=35000&category=suv" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 4: Mercedes Benz E350 -->
-        <div class="car-card reveal" data-category="sedan" data-car-id="e350">
-          <span class="availability-badge" id="badge-e350">Available</span>
-          <img class="car-img" data-src="assets/images/benz E350.jpg" src="assets/images/benz E350.jpg" alt="Mercedes E350" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Mercedes Benz E350</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> V6</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.8</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 10,500 <span>/ day</span></div>
-            <a href="booking.html?car=Mercedes%20Benz%20E350&price=10500&category=sedan" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 5: Audi A5 -->
-        <div class="car-card reveal" data-category="sedan" data-car-id="audi-a5">
-          <span class="availability-badge" id="badge-audi-a5">Available</span>
-          <img class="car-img" data-src="assets/images/audi a5.jpg" src="assets/images/audi a5.jpg" alt="Audi A5" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Audi A5</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> Turbo 4</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.4</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 12,500 <span>/ day</span></div>
-            <a href="booking.html?car=Audi%20A5&price=12500&category=sedan" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 6: Mazda CX-5 -->
-        <div class="car-card reveal" data-category="suv" data-car-id="mazda-cx5">
-          <span class="availability-badge" id="badge-mazda-cx5">Available</span>
-          <img class="car-img" data-src="assets/images/mazda cx5.jpg" src="assets/images/mazda cx5.jpg" alt="Mazda CX-5" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Mazda CX-5</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> Hybrid</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.2</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 7,000 <span>/ day</span></div>
-            <a href="booking.html?car=Mazda%20CX-5&price=7000&category=suv" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 7: Toyota Mark X -->
-        <div class="car-card reveal" data-category="sedan" data-car-id="mark-x">
-          <span class="availability-badge" id="badge-mark-x">Available</span>
-          <img class="car-img" data-src="assets/images/mark x.jpg" src="assets/images/mark x.jpg" alt="Toyota Mark X" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Toyota Mark X</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> V6</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.8</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 6,500 <span>/ day</span></div>
-            <a href="booking.html?car=Toyota%20Mark%20X&price=6500&category=sedan" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 8: Toyota Fielder -->
-        <div class="car-card reveal" data-category="economy" data-car-id="fielder">
-          <span class="availability-badge" id="badge-fielder">Available</span>
-          <img class="car-img" data-src="assets/images/toyota fielder.jpg" src="assets/images/toyota fielder.jpg" alt="Toyota Fielder" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Toyota Fielder</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> 1.5L</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <span>4.0</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 4,000 <span>/ day</span></div>
-            <a href="booking.html?car=Toyota%20Fielder&price=4000&category=economy" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 9: Mazda Axela -->
-        <div class="car-card reveal" data-category="economy" data-car-id="axela">
-          <span class="availability-badge" id="badge-axela">Available</span>
-          <img class="car-img" data-src="assets/images/mazda axela.jpg" src="assets/images/mazda axela.jpg" alt="Mazda Axela" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Mazda Axela</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Automatic</span>
-              <span><i class="fas fa-tachometer-alt"></i> 2.0L</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                <span>4.5</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 4,500 <span>/ day</span></div>
-            <a href="booking.html?car=Mazda%20Axela&price=4500&category=economy" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <!-- Car 10: Mazda Demio -->
-        <div class="car-card reveal" data-category="economy" data-car-id="demio">
-          <div class="car-badge car-badge--green">Best Value</div>
-          <span class="availability-badge" id="badge-demio">Available</span>
-          <img class="car-img" data-src="assets/images/mazda demio.jpg" src="assets/images/mazda demio.jpg" alt="Mazda Demio" loading="lazy">
-          <div class="card-content">
-            <div class="car-title">Mazda Demio</div>
-            <div class="car-details">
-              <span><i class="fas fa-cog"></i> Manual</span>
-              <span><i class="fas fa-tachometer-alt"></i> 1.3L</span>
-              <div class="rating">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <span>4.0</span>
-              </div>
-            </div>
-            <div class="price-day">KSh 3,500 <span>/ day</span></div>
-            <a href="booking.html?car=Mazda%20Demio&price=3500&category=economy" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
+        <!-- Cars will be dynamically injected from vehicles.json -->
       </div>
-      <!-- No results message – hidden by default -->
-      <p class="no-results hidden" id="noResults">No vehicles match your search.</p>
+      <!-- No results message -->
+      <p class="no-results" id="noResults">No vehicles match your search.</p>
     </section>
 
     <!-- Testimonials -->
@@ -386,9 +181,6 @@
             <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
             <a href="https://wa.me/254745424341" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           </div>
-          <p class="admin-link-hidden">
-            <a href="admin-login.html">Admin</a>
-          </p>
         </div>
       </div>
       <div class="footer-bottom">
@@ -397,6 +189,8 @@
     </footer>
   </div><!-- .page-wrapper -->
 
+  <!-- Load config first, then script -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
