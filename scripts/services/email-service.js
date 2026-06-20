@@ -268,7 +268,7 @@ function buildOwnerEmailHTML(bookingData) {
     .footer a { color: #c9a03d; text-decoration: none; }
     @media (max-width: 480px) { 
       .info-grid { grid-template-columns: 1fr; gap: 4px; } 
-      .action-btn { min-width: 100%; max-width: 100%; white-space: normal; }
+      .action-btn { min-width: 50%; max-width: 50%; white-space: normal; }
       .action-btn .icon { display: inline-block; margin-right: 6px; font-size: 18px; }
     }
   </style>
