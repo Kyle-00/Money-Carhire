@@ -1,7 +1,5 @@
 # Money Carhire
 
----
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -47,7 +45,7 @@ This separation ensures:
 - **Browse Fleet** – view all available vehicles with images, pricing, and specifications
 - **Real-Time Availability** – check vehicle availability based on selected dates
 - **Booking Requests** – submit bookings with pickup/delivery options
-- **Instant Confirmation** – receive email confirmation within 2 hours (via EmailJS or mailto: fallback)
+- **Instant Confirmation** – receive email confirmation within 15 mins (via EmailJS or mailto: fallback)
 - **WhatsApp Support** – quick chat support via floating WhatsApp button
 - **Dark Mode** – toggle between light and dark themes
 
@@ -61,7 +59,7 @@ This separation ensures:
 - **CSV Export** – export booking data for offline analysis
 - **Quick Stats** – most popular car, today's bookings, average rental days
 - **Status Management** – change booking status (Pending/Confirmed/Completed/Cancelled)
-- **Keyboard Shortcut** – Ctrl+Shift+A for quick admin access
+- **Keyboard Shortcut** – for quick admin access
 
 ### Technical Highlights
 
@@ -156,7 +154,6 @@ Money-Carhire/
 ├── tests/                      # Unit tests
 │   └── helpers.test.js            # Helper function tests
 │
-└── dist/                       # Build output (when using Vite)
 ```
 
 ---
@@ -165,8 +162,8 @@ Money-Carhire/
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
+- Node.js
+- npm
 - Firebase account (for Firestore)
 - EmailJS account (for email notifications)
 
@@ -292,7 +289,7 @@ window.CONFIG = {
 ### Access Methods
 
 - Admin Login Page: `/admin-login.html`
-- Keyboard Shortcut: press Ctrl+Shift+A on any page
+- Keyboard Shortcut: press Ctrl+Shift+K on any page
 - Direct Navigation: use the "Admin" link in the navigation
 
 ### Admin Pages
@@ -441,10 +438,10 @@ firebase init hosting
 firebase deploy
 ```
 
-### Option 2: Deploy to Netlify/Vercel
+### Option 2: Deploy to Vercel
 
 1. Push code to GitHub.
-2. Connect repository to Netlify/Vercel.
+2. Connect repository to Vercel.
 3. Configure build command: `npm run build`
 4. Publish directory: `dist/`
 
