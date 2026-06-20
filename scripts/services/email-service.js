@@ -126,7 +126,13 @@ export function isEmailJSAvailable() {
   return emailjsInstance !== null && emailjsConfig !== null;
 }
 
+/**
+ * Build the customer email HTML content
+ */
 function buildCustomerEmailHTML(bookingData) {
+  // Format the total with KSh
+  const formattedTotal = bookingData.total ? bookingData.total : 'KSh 0';
+
   return `
 <!DOCTYPE html>
 <html>
@@ -141,11 +147,13 @@ function buildCustomerEmailHTML(bookingData) {
     .header p { color: #e0e0e0; margin: 6px 0 0; font-size: 14px; }
     .body { padding: 30px 25px; }
     .body h2 { color: #c9a03d; font-size: 18px; border-bottom: 2px solid #c9a03d; padding-bottom: 8px; margin-top: 0; }
+    .body h2.underline { border-bottom: 2px solid #c9a03d; padding-bottom: 8px; }
     .info-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 8px 16px; margin: 15px 0; background: #f9f9f9; padding: 15px; border-radius: 8px; }
     .info-grid .label { color: #666; font-weight: 600; font-size: 13px; }
     .info-grid .value { color: #222; font-size: 13px; }
     .info-grid .value.gold { color: #c9a03d; font-weight: 700; }
     .divider { border: none; border-top: 2px dashed #e0e0e0; margin: 20px 0; }
+    .total-line { border: none; border-top: 3px solid #c9a03d; margin: 15px 0; }
     .footer { background: #1a1a2e; padding: 20px; text-align: center; color: #888; font-size: 12px; }
     .footer a { color: #c9a03d; text-decoration: none; }
     @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; gap: 4px; } }
@@ -159,9 +167,9 @@ function buildCustomerEmailHTML(bookingData) {
     </div>
     <div class="body">
       <h2>Thank You, ${bookingData.name}!</h2>
-      <p>Your booking request has been received. We will confirm within <strong>15 mins</strong>.</p>
+      <p>Your booking request has been received. We will confirm within <strong>2 hours</strong>.</p>
 
-      <h2>Booking Details</h2>
+      <h2 class="underline">Booking Details</h2>
       <div class="info-grid">
         <span class="label">Booking Reference</span>
         <span class="value"><strong>#${bookingData.booking_id}</strong></span>
@@ -177,8 +185,13 @@ function buildCustomerEmailHTML(bookingData) {
         <span class="value">${bookingData.location}</span>
         <span class="label">Pickup Method</span>
         <span class="value">${bookingData.pickup_type}</span>
-        <span class="label">Total</span>
-        <span class="value gold" style="font-size:18px;font-weight:700;">${bookingData.total}</span>
+      </div>
+
+      <hr class="total-line">
+
+      <div style="text-align:right;padding:10px 15px;background:#f8f4ea;border-radius:8px;">
+        <div style="font-size:14px;color:#666;">Total Amount</div>
+        <div style="font-size:24px;font-weight:700;color:#c9a03d;">${formattedTotal}</div>
       </div>
 
       <hr class="divider">
@@ -198,10 +211,18 @@ function buildCustomerEmailHTML(bookingData) {
   `;
 }
 
+/**
+ * Build the owner email HTML content
+ */
 function buildOwnerEmailHTML(bookingData) {
   const whatsappLink = `https://wa.me/${formatPhoneForWhatsApp(bookingData.phone)}?text=Hello%20${encodeURIComponent(bookingData.name)}%2C%20I%27m%20following%20up%20on%20your%20booking%20%23${bookingData.booking_id}`;
   const emailLink = `mailto:${bookingData.email}?subject=Booking%20Confirmation%20-%20${bookingData.booking_id}`;
   const callLink = `tel:${bookingData.phone}`;
+
+  // Format amounts with KSh
+  const formattedRental = bookingData.rental_total ? bookingData.rental_total : 'KSh 0';
+  const formattedDelivery = bookingData.delivery_fee ? bookingData.delivery_fee : 'KSh 0';
+  const formattedTotal = bookingData.total ? bookingData.total : 'KSh 0';
 
   return `
 <!DOCTYPE html>
@@ -217,23 +238,40 @@ function buildOwnerEmailHTML(bookingData) {
     .header .subtitle { color: #e0e0e0; font-size: 14px; margin-top: 6px; }
     .body { padding: 30px 25px; }
     .body h2 { color: #c9a03d; font-size: 18px; border-bottom: 2px solid #c9a03d; padding-bottom: 8px; margin-top: 0; }
+    .body h2.underline { border-bottom: 2px solid #c9a03d; padding-bottom: 8px; }
     .badge { display: inline-block; background: #f39c12; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
     .info-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 8px 16px; margin: 15px 0; background: #f9f9f9; padding: 15px; border-radius: 8px; }
     .info-grid .label { color: #666; font-weight: 600; font-size: 13px; }
     .info-grid .value { color: #222; font-size: 13px; }
     .info-grid .value.gold { color: #c9a03d; font-weight: 700; }
     .divider { border: none; border-top: 2px dashed #e0e0e0; margin: 20px 0; }
+    .total-line { border: none; border-top: 3px solid #c9a03d; margin: 15px 0; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
-    .action-btn { display: inline-block; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; text-align: center; flex: 1; min-width: 120px; }
+    .action-btn { 
+      display: inline-block; 
+      padding: 10px 16px; 
+      border-radius: 6px; 
+      text-decoration: none; 
+      font-size: 13px; 
+      font-weight: 600; 
+      text-align: center; 
+      flex: 1 1 auto;
+      min-width: 100px;
+      max-width: 180px;
+    }
     .action-btn.email { background: #3498db; color: #fff; }
     .action-btn.call { background: #2ecc71; color: #fff; }
     .action-btn.whatsapp { background: #25d366; color: #fff; }
     .action-btn:hover { opacity: 0.85; }
+    .action-btn .icon { display: block; font-size: 18px; }
     .note { background: #f8f4ea; padding: 15px; border-radius: 8px; border-left: 4px solid #c9a03d; margin-top: 20px; font-size: 13px; color: #555; }
     .note strong { color: #c9a03d; }
     .footer { background: #1a1a2e; padding: 20px; text-align: center; color: #888; font-size: 12px; }
     .footer a { color: #c9a03d; text-decoration: none; }
-    @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; gap: 4px; } .action-btn { min-width: 100%; } }
+    @media (max-width: 480px) { 
+      .info-grid { grid-template-columns: 1fr; gap: 4px; } 
+      .action-btn { min-width: 100%; max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -248,7 +286,7 @@ function buildOwnerEmailHTML(bookingData) {
 
       <hr class="divider">
 
-      <h2>Customer Details</h2>
+      <h2 class="underline">Customer Details</h2>
       <div class="info-grid">
         <span class="label">Name</span><span class="value">${bookingData.name}</span>
         <span class="label">Email</span><span class="value"><a href="mailto:${bookingData.email}">${bookingData.email}</a></span>
@@ -257,7 +295,7 @@ function buildOwnerEmailHTML(bookingData) {
 
       <hr class="divider">
 
-      <h2>Booking Details</h2>
+      <h2 class="underline">Booking Details</h2>
       <div class="info-grid">
         <span class="label">Vehicle</span><span class="value"><strong>${bookingData.car}</strong></span>
         <span class="label">Pickup Date</span><span class="value">${bookingData.pickup_date_display}</span>
@@ -268,20 +306,26 @@ function buildOwnerEmailHTML(bookingData) {
         <span class="label">Requests</span><span class="value">${bookingData.requests || 'None'}</span>
       </div>
 
-      <h2>Payment</h2>
+      <hr class="total-line">
+
+      <h2 class="underline">Payment Breakdown</h2>
       <div class="info-grid">
-        <span class="label">Rental (${bookingData.days} days)</span><span class="value gold">${bookingData.rental_total}</span>
-        <span class="label">Delivery Fee</span><span class="value gold">${bookingData.delivery_fee}</span>
-        <span class="label" style="font-size:15px;font-weight:700;">TOTAL</span><span class="value gold" style="font-size:18px;font-weight:700;">${bookingData.total}</span>
+        <span class="label">Rental (${bookingData.days} days)</span><span class="value gold">${formattedRental}</span>
+        <span class="label">Delivery Fee</span><span class="value gold">${formattedDelivery}</span>
+      </div>
+
+      <div style="text-align:right;padding:10px 15px;background:#f8f4ea;border-radius:8px;margin:10px 0;">
+        <div style="font-size:14px;color:#666;">TOTAL</div>
+        <div style="font-size:24px;font-weight:700;color:#c9a03d;">${formattedTotal}</div>
       </div>
 
       <hr class="divider">
 
-      <h2>Quick Actions</h2>
+      <h2 class="underline">Quick Actions</h2>
       <div class="actions">
-        <a href="${emailLink}" class="action-btn email"><span style="display:block;font-size:18px;">✉</span>Email Customer</a>
-        <a href="${callLink}" class="action-btn call"><span style="display:block;font-size:18px;">☎</span>Call Customer</a>
-        <a href="${whatsappLink}" class="action-btn whatsapp" target="_blank"><span style="display:block;font-size:18px;">💬</span>WhatsApp</a>
+        <a href="${emailLink}" class="action-btn email"><span class="icon">✉</span>Email</a>
+        <a href="${callLink}" class="action-btn call"><span class="icon">☎</span>Call</a>
+        <a href="${whatsappLink}" class="action-btn whatsapp" target="_blank"><span class="icon">💬</span>WhatsApp</a>
       </div>
 
       <div class="note">
