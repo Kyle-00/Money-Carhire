@@ -206,7 +206,7 @@ export function initBookingForm() {
       document.getElementById('bookingFormWrap').style.display = 'none';
       document.getElementById('bookingSuccess').style.display = 'block';
 
-      let msg = 'Booking request sent! We\'ll confirm within 2 hours.';
+      let msg = 'Booking request sent! We\'ll confirm within 15 mins.';
       if (emailSent) msg += emailError ? ' A confirmation email will open; please send it.' : ' A confirmation email has been sent to you.';
       if (totals.deliveryFee > 0) msg += ` A delivery fee of ${formatKSh(totals.deliveryFee)} has been added.`;
       showToast(msg);
