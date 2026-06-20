@@ -21,8 +21,8 @@ const CONFIG = {
   emailjs: {
     publicKey: 'GrwmOU4hjzqu9yLEP',
     serviceId: 'service_4sf99gj',
-    customerTemplate: 'template_ho9ezeu',
-    ownerTemplate: 'template_jtnrwul',
+    customerTemplate: 'template_g1t03lm',
+    ownerTemplate: 'template_h0qnt7d',
     ownerEmail: 'moneycarhire@gmail.com'
   },
   
