@@ -40,7 +40,6 @@ export class AdminDashboard {
     this.fleetManager = getFleetManager();
     this.db = null;
 
-    // If bookingsBody is still null, log a warning
     if (!this.bookingsBody) {
       console.warn('[AdminDashboard] bookingsBody not found! Check HTML for <tbody id="bookingsBody">');
     }
@@ -155,14 +154,12 @@ export class AdminDashboard {
   }
 
   _renderTable() {
-    // Re-fetch the element in case it was missing earlier
     if (!this.bookingsBody) {
       this.bookingsBody = document.getElementById('bookingsBody') || document.querySelector('#bookingsBody');
     }
 
     if (!this.bookingsBody) {
       console.error('[AdminDashboard] bookingsBody element not found!');
-      // Try once more with a direct query
       const el = document.querySelector('#bookingsBody');
       if (el) {
         this.bookingsBody = el;
@@ -178,7 +175,6 @@ export class AdminDashboard {
       return;
     }
 
-    // Hide empty state and loading, then show the table container
     this._hideEmpty();
     this._hideLoading();
     if (this.tableContent) {
@@ -188,6 +184,10 @@ export class AdminDashboard {
     this.bookingsBody.innerHTML = this.filteredBookings.map((b) => {
       const statusClass = b.status || 'pending';
       const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+      // ✅ FIX: Format amount with KSh
+      const amount = safeParseNumber(b.total) || safeParseNumber(b.rental_total) || 0;
+      const formattedAmount = formatKSh(amount);
+
       return `<tr>
         <td><strong>${b.booking_id || '—'}</strong></td>
         <td>
@@ -198,7 +198,7 @@ export class AdminDashboard {
         <td>${formatDateDisplay(b.pickup_date || b.pickup_date_display)}</td>
         <td>${formatDateDisplay(b.return_date || b.return_date_display)}</td>
         <td>${b.days || '—'}</td>
-        <td><strong style="color:var(--accent-gold);">${b.total || b.rental_total || 'KSh 0'}</strong></td>
+        <td><strong style="color:var(--accent-gold);">${formattedAmount}</strong></td>
         <td>${b.pickup_type || 'Self Pickup'}</td>
         <td>Pay on Pickup/Delivery</td>
         <td>
@@ -213,12 +213,10 @@ export class AdminDashboard {
       </tr>`;
     }).join('');
 
-    // Attach status change listeners
     this.bookingsBody.querySelectorAll('.status-select').forEach((sel) => {
       sel.addEventListener('change', (e) => this._updateStatus(e.target.dataset.id, e.target.value));
     });
 
-    // Attach delete listeners
     this.bookingsBody.querySelectorAll('.delete-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => this._deleteBooking(e.target.closest('.delete-btn').dataset.id));
     });
@@ -273,11 +271,9 @@ export class AdminDashboard {
     if (this.deliveryBookingsEl) this.deliveryBookingsEl.textContent = deliveryBookings;
   }
 
-  // Quick Stats – today only
   _updateQuickStats() {
     const todayStr = getTodayString();
 
-    // Filter bookings with pickup date = today
     const todayBookingsData = this.filteredBookings.filter(b => {
       const pickup = b.pickup_date;
       if (!pickup) return false;
@@ -285,7 +281,6 @@ export class AdminDashboard {
       return d.toISOString().split('T')[0] === todayStr;
     });
 
-    // Most popular car among today's bookings
     const carCounts = {};
     todayBookingsData.forEach(b => {
       if (b.car) carCounts[b.car] = (carCounts[b.car] || 0) + 1;
@@ -301,7 +296,6 @@ export class AdminDashboard {
 
     const todayCount = todayBookingsData.length;
 
-    // Average rental days for today's bookings
     let totalDays = 0;
     let count = 0;
     todayBookingsData.forEach(b => {
