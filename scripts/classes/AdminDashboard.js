@@ -10,14 +10,8 @@ import { getFleetManager } from './FleetManager.js';
 
 export class AdminDashboard {
   constructor() {
-    this.bookings = [];
-    this.filteredBookings = [];
-    this.unsubscribe = null;
-    this.fleetManager = getFleetManager();
-    this.db = null;
-
-    // DOM references
-    this.bookingsBody = document.getElementById('bookingsBody');
+    // Get DOM references – with fallback if not found
+    this.bookingsBody = document.getElementById('bookingsBody') || document.querySelector('#bookingsBody');
     this.loadingState = document.getElementById('loadingState');
     this.tableContent = document.getElementById('tableContent');
     this.emptyState = document.getElementById('emptyState');
@@ -39,6 +33,17 @@ export class AdminDashboard {
     this.mostPopularCarEl = document.getElementById('mostPopularCar');
     this.todayBookingsEl = document.getElementById('todayBookings');
     this.avgDaysEl = document.getElementById('avgDays');
+
+    this.bookings = [];
+    this.filteredBookings = [];
+    this.unsubscribe = null;
+    this.fleetManager = getFleetManager();
+    this.db = null;
+
+    // If bookingsBody is still null, log a warning
+    if (!this.bookingsBody) {
+      console.warn('[AdminDashboard] bookingsBody not found! Check HTML for <tbody id="bookingsBody">');
+    }
   }
 
   init(db) {
@@ -150,9 +155,22 @@ export class AdminDashboard {
   }
 
   _renderTable() {
+    // Re-fetch the element in case it was missing earlier
+    if (!this.bookingsBody) {
+      this.bookingsBody = document.getElementById('bookingsBody') || document.querySelector('#bookingsBody');
+    }
+
     if (!this.bookingsBody) {
       console.error('[AdminDashboard] bookingsBody element not found!');
-      return;
+      // Try once more with a direct query
+      const el = document.querySelector('#bookingsBody');
+      if (el) {
+        this.bookingsBody = el;
+        console.log('[AdminDashboard] bookingsBody found via fallback query.');
+      } else {
+        console.error('[AdminDashboard] Still not found. Please check your HTML.');
+        return;
+      }
     }
 
     if (!this.filteredBookings || this.filteredBookings.length === 0) {
@@ -255,7 +273,7 @@ export class AdminDashboard {
     if (this.deliveryBookingsEl) this.deliveryBookingsEl.textContent = deliveryBookings;
   }
 
-  // ========== UPDATED: Quick Stats now show only today's bookings ==========
+  // Quick Stats – today only
   _updateQuickStats() {
     const todayStr = getTodayString();
 
@@ -281,7 +299,6 @@ export class AdminDashboard {
       }
     }
 
-    // Today's bookings count
     const todayCount = todayBookingsData.length;
 
     // Average rental days for today's bookings
@@ -300,12 +317,10 @@ export class AdminDashboard {
     if (this.todayBookingsEl) this.todayBookingsEl.textContent = todayCount;
     if (this.avgDaysEl) this.avgDaysEl.textContent = avg === '—' ? '—' : avg + ' days';
   }
-  // ========================================================================
 
   _updateChart() {
     if (!this.chartContainer) return;
 
-    // Build last 7 days
     const days = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -315,7 +330,6 @@ export class AdminDashboard {
       days.push({ date: dateStr, label: label, count: 0, confirmed: 0 });
     }
 
-    // Aggregate bookings
     this.filteredBookings.forEach((b) => {
       if (b.created_at) {
         const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
@@ -331,8 +345,6 @@ export class AdminDashboard {
     });
 
     const maxCount = Math.max(1, ...days.map((d) => d.count));
-
-    // Build the chart HTML
     let barsHTML = '';
     let labelsHTML = '';
 
@@ -350,7 +362,6 @@ export class AdminDashboard {
       labelsHTML += `<div class="day-label">${day.label}</div>`;
     });
 
-    // Combine into full chart
     this.chartContainer.innerHTML = `
       <div class="chart-bars" style="display:flex;align-items:flex-end;height:100%;border-bottom:2px solid var(--text-secondary);padding-bottom:4px;">
         ${barsHTML}
@@ -360,7 +371,6 @@ export class AdminDashboard {
       </div>
     `;
 
-    // Tooltip hover events
     this.chartContainer.querySelectorAll('.bar').forEach((bar) => {
       bar.addEventListener('mouseenter', function() {
         const tip = this.querySelector('.bar-tooltip');
