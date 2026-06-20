@@ -255,9 +255,21 @@ export class AdminDashboard {
     if (this.deliveryBookingsEl) this.deliveryBookingsEl.textContent = deliveryBookings;
   }
 
+  // ========== UPDATED: Quick Stats now show only today's bookings ==========
   _updateQuickStats() {
+    const todayStr = getTodayString();
+
+    // Filter bookings with pickup date = today
+    const todayBookingsData = this.filteredBookings.filter(b => {
+      const pickup = b.pickup_date;
+      if (!pickup) return false;
+      const d = new Date(pickup);
+      return d.toISOString().split('T')[0] === todayStr;
+    });
+
+    // Most popular car among today's bookings
     const carCounts = {};
-    this.filteredBookings.forEach((b) => {
+    todayBookingsData.forEach(b => {
       if (b.car) carCounts[b.car] = (carCounts[b.car] || 0) + 1;
     });
     let mostPopular = '—';
@@ -269,17 +281,13 @@ export class AdminDashboard {
       }
     }
 
-    const todayStr = getTodayString();
-    const todayBookings = this.filteredBookings.filter((b) => {
-      const pickup = b.pickup_date;
-      if (!pickup) return false;
-      const d = new Date(pickup);
-      return d.toISOString().split('T')[0] === todayStr;
-    }).length;
+    // Today's bookings count
+    const todayCount = todayBookingsData.length;
 
+    // Average rental days for today's bookings
     let totalDays = 0;
     let count = 0;
-    this.filteredBookings.forEach((b) => {
+    todayBookingsData.forEach(b => {
       const days = safeParseNumber(b.days);
       if (days > 0) {
         totalDays += days;
@@ -289,80 +297,81 @@ export class AdminDashboard {
     const avg = count > 0 ? (totalDays / count).toFixed(1) : '—';
 
     if (this.mostPopularCarEl) this.mostPopularCarEl.textContent = mostPopular;
-    if (this.todayBookingsEl) this.todayBookingsEl.textContent = todayBookings;
+    if (this.todayBookingsEl) this.todayBookingsEl.textContent = todayCount;
     if (this.avgDaysEl) this.avgDaysEl.textContent = avg === '—' ? '—' : avg + ' days';
   }
+  // ========================================================================
 
- _updateChart() {
-  if (!this.chartContainer) return;
+  _updateChart() {
+    if (!this.chartContainer) return;
 
-  // Build last 7 days
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const label = d.toLocaleDateString('en-KE', { weekday: 'short' });
-    days.push({ date: dateStr, label: label, count: 0, confirmed: 0 });
-  }
+    // Build last 7 days
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const label = d.toLocaleDateString('en-KE', { weekday: 'short' });
+      days.push({ date: dateStr, label: label, count: 0, confirmed: 0 });
+    }
 
-  // Aggregate bookings
-  this.filteredBookings.forEach((b) => {
-    if (b.created_at) {
-      const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
-      const dateStr = createdDate.toISOString().split('T')[0];
-      const day = days.find((d) => d.date === dateStr);
-      if (day) {
-        day.count++;
-        if (b.status === 'confirmed' || b.status === 'completed') {
-          day.confirmed++;
+    // Aggregate bookings
+    this.filteredBookings.forEach((b) => {
+      if (b.created_at) {
+        const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
+        const dateStr = createdDate.toISOString().split('T')[0];
+        const day = days.find((d) => d.date === dateStr);
+        if (day) {
+          day.count++;
+          if (b.status === 'confirmed' || b.status === 'completed') {
+            day.confirmed++;
+          }
         }
       }
-    }
-  });
+    });
 
-  const maxCount = Math.max(1, ...days.map((d) => d.count));
+    const maxCount = Math.max(1, ...days.map((d) => d.count));
 
-  // Build the chart HTML
-  let barsHTML = '';
-  let labelsHTML = '';
+    // Build the chart HTML
+    let barsHTML = '';
+    let labelsHTML = '';
 
-  days.forEach((day) => {
-    const percent = (day.count / maxCount) * 100;
-    const height = day.count > 0 ? Math.max(4, percent) : 0;
-    const barColor = day.confirmed > 0 ? '#2ecc71' : 'var(--accent-gold)';
+    days.forEach((day) => {
+      const percent = (day.count / maxCount) * 100;
+      const height = day.count > 0 ? Math.max(4, percent) : 0;
+      const barColor = day.confirmed > 0 ? '#2ecc71' : 'var(--accent-gold)';
 
-    barsHTML += `<div class="bar-wrapper" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
-      <div class="bar" style="height:${height}%;min-height:${day.count > 0 ? '4px' : '0'};background-color:${barColor};border-radius:4px 4px 0 0;width:70%;position:relative;">
-        <span class="bar-tooltip">${day.label}: ${day.count} bookings (${day.confirmed} confirmed)</span>
+      barsHTML += `<div class="bar-wrapper" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
+        <div class="bar" style="height:${height}%;min-height:${day.count > 0 ? '4px' : '0'};background-color:${barColor};border-radius:4px 4px 0 0;width:70%;position:relative;">
+          <span class="bar-tooltip">${day.label}: ${day.count} bookings (${day.confirmed} confirmed)</span>
+        </div>
+      </div>`;
+
+      labelsHTML += `<div class="day-label">${day.label}</div>`;
+    });
+
+    // Combine into full chart
+    this.chartContainer.innerHTML = `
+      <div class="chart-bars" style="display:flex;align-items:flex-end;height:100%;border-bottom:2px solid var(--text-secondary);padding-bottom:4px;">
+        ${barsHTML}
       </div>
-    </div>`;
+      <div class="chart-labels" style="display:flex;margin-top:4px;">
+        ${labelsHTML}
+      </div>
+    `;
 
-    labelsHTML += `<div class="day-label">${day.label}</div>`;
-  });
-
-  // Combine into full chart
-  this.chartContainer.innerHTML = `
-    <div class="chart-bars" style="display:flex;align-items:flex-end;height:100%;border-bottom:2px solid var(--text-secondary);padding-bottom:4px;">
-      ${barsHTML}
-    </div>
-    <div class="chart-labels" style="display:flex;margin-top:4px;">
-      ${labelsHTML}
-    </div>
-  `;
-
-  // Tooltip hover events
-  this.chartContainer.querySelectorAll('.bar').forEach((bar) => {
-    bar.addEventListener('mouseenter', function() {
-      const tip = this.querySelector('.bar-tooltip');
-      if (tip) tip.style.display = 'block';
+    // Tooltip hover events
+    this.chartContainer.querySelectorAll('.bar').forEach((bar) => {
+      bar.addEventListener('mouseenter', function() {
+        const tip = this.querySelector('.bar-tooltip');
+        if (tip) tip.style.display = 'block';
+      });
+      bar.addEventListener('mouseleave', function() {
+        const tip = this.querySelector('.bar-tooltip');
+        if (tip) tip.style.display = 'none';
+      });
     });
-    bar.addEventListener('mouseleave', function() {
-      const tip = this.querySelector('.bar-tooltip');
-      if (tip) tip.style.display = 'none';
-    });
-  });
-}
+  }
 
   _exportCSV() {
     if (this.bookings.length === 0) {
