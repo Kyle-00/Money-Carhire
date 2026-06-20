@@ -151,9 +151,6 @@ button { cursor: pointer; font-family: inherit; }
     text-decoration: none;
 }
 .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6); color: #fff; }
-@media (max-width: 768px) {
-    .whatsapp-float { width: 50px; height: 50px; font-size: 1.6rem; bottom: 90px; right: 16px; }
-}
 
 /* ── Page Wrapper ── */
 .page-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
@@ -751,8 +748,8 @@ button { cursor: pointer; font-family: inherit; }
         position: fixed;
         top: 0;
         right: -100%;
-        width: 80%;
-        max-width: 320px;
+        width: 75%;
+        max-width: 300px;
         height: 100vh;
         background: var(--bg-surface);
         flex-direction: column;
@@ -767,7 +764,14 @@ button { cursor: pointer; font-family: inherit; }
         z-index: 200;
     }
     .nav-links.open { right: 0; }
-    .nav-links a { font-size: 1.05rem; padding: 0.6rem 1rem; border-radius: 12px; text-align: center; width: 100%; }
+    .nav-links a { 
+        font-size: 1.05rem; 
+        padding: 0.6rem 1rem; 
+        border-radius: 12px; 
+        text-align: center; 
+        width: 100%; 
+        white-space: normal;
+    }
     .nav-reserve-btn { margin-top: 0.5rem; text-align: center; }
     .hamburger { display: flex; z-index: 210; }
     .hero { min-height: 75vh; }
@@ -796,11 +800,25 @@ button { cursor: pointer; font-family: inherit; }
     .luxury-footer { padding: 2rem 1rem 1rem; }
     .footer-description { font-size: 0.85rem; padding: 0 0.5rem; }
     .footer-social a { width: 36px; height: 36px; font-size: 0.9rem; }
-    .dark-mode-btn { width: 42px; height: 42px; bottom: 20px; right: 20px; }
+    .dark-mode-btn { width: 42px; height: 42px; bottom: 20px; right: 20px; z-index: 500; }
     .dark-mode-btn i { font-size: 1rem; }
-    .back-to-top { width: 38px; height: 38px; bottom: 72px; right: 20px; font-size: 0.8rem; }
-    .toast { bottom: 140px; right: 16px; left: 16px; max-width: unset; font-size: 0.82rem; padding: 10px 16px; }
-    .whatsapp-float { width: 50px; height: 50px; font-size: 1.6rem; bottom: 90px; right: 16px; }
+    .back-to-top { 
+        width: 40px; 
+        height: 40px; 
+        bottom: 80px; 
+        right: 20px; 
+        font-size: 0.8rem;
+        z-index: 499; 
+    }
+    .toast { bottom: 140px; right: 16px; left: 16px; max-width: unset; font-size: 0.82rem; padding: 10px 16px; z-index: 999; }
+    .whatsapp-float { 
+        width: 50px; 
+        height: 50px; 
+        font-size: 1.6rem; 
+        bottom: 96px; 
+        right: 16px; 
+        z-index: 400; 
+    }
 }
 @media (max-width: 480px) {
     .hero-title { font-size: 2.2rem; }
@@ -817,6 +835,9 @@ button { cursor: pointer; font-family: inherit; }
     .reviewer h4 { font-size: 0.85rem; }
     .reviewer-avatar { width: 36px; height: 36px; font-size: 0.75rem; }
     .footer-bottom p { font-size: 0.65rem; }
+    .whatsapp-float { width: 44px; height: 44px; font-size: 1.4rem; bottom: 86px; right: 14px; }
+    .back-to-top { width: 36px; height: 36px; bottom: 72px; right: 14px; font-size: 0.7rem; }
+    .dark-mode-btn { width: 36px; height: 36px; bottom: 16px; right: 14px; font-size: 0.8rem; }
 }
 @media (min-width: 1400px) {
     .hero-title { font-size: 5.5rem; }
