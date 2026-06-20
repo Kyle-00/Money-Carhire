@@ -113,11 +113,11 @@ button {
     background: var(--accent-gold-light);
 }
 
-/* ── Dark Mode Toggle ── */
+/* ── Dark Mode Toggle (Bottom-Left) ── */
 .dark-mode-btn {
     position: fixed;
     bottom: 24px;
-    right: 24px;
+    left: 24px;
     background: var(--accent-gold);
     width: 48px;
     height: 48px;
@@ -148,7 +148,7 @@ button {
     color: #f1c40f;
 }
 
-/* ── Back to Top ── */
+/* ── Back to Top (Above WhatsApp) ── */
 .back-to-top {
     position: fixed;
     bottom: 90px;
@@ -215,7 +215,7 @@ button {
     color: #fff;
 }
 
-/* ── WhatsApp Floating Button ── */
+/* ── WhatsApp Floating Button (Bottom-Right) ── */
 .whatsapp-float {
     position: fixed;
     bottom: 24px;
@@ -816,10 +816,6 @@ button {
     transform: none;
     transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.reveal:not(.visible) {
-    opacity: 1;
-    transform: none;
-}
 .reveal.visible {
     opacity: 1;
     transform: none;
@@ -1154,7 +1150,7 @@ button {
     color: var(--text-primary);
 }
 
-/* ── Responsive (Desktop-first overrides) ── */
+/* ── Responsive Desktop-First Overrides ── */
 
 /* Large screens */
 @media (min-width: 1400px) {
@@ -1191,9 +1187,8 @@ button {
     }
 }
 
-/* Tablets & Mobile (sticky navbar, hamburger, floating buttons) */
+/* Tablets & Mobile */
 @media (max-width: 768px) {
-    /* ── Navbar ── */
     .navbar {
         padding: 0.6rem 1rem;
     }
@@ -1212,7 +1207,6 @@ button {
         font-size: 1.2rem;
     }
 
-    /* Hamburger always visible on mobile */
     .hamburger {
         display: flex !important;
         z-index: 210;
@@ -1242,7 +1236,6 @@ button {
         transform: translateY(-6.5px) rotate(-45deg);
     }
 
-    /* Nav links: hidden by default, slide in from right */
     .nav-links {
         position: fixed !important;
         top: 0;
@@ -1292,7 +1285,6 @@ button {
         text-align: center;
     }
 
-    /* ── Hero ── */
     .hero {
         min-height: 75vh;
     }
@@ -1327,7 +1319,6 @@ button {
         font-size: 1rem;
     }
 
-    /* ── Stats ── */
     .stats-section {
         padding: 1.8rem 1rem;
     }
@@ -1345,7 +1336,6 @@ button {
         font-size: 0.75rem;
     }
 
-    /* ── Section Headers ── */
     .section-header h2 {
         font-size: 1.8rem;
     }
@@ -1353,7 +1343,6 @@ button {
         font-size: 0.95rem;
     }
 
-    /* ── Car Grid ── */
     .car-showcase {
         margin: 2.5rem auto;
         padding: 0 1rem;
@@ -1381,7 +1370,6 @@ button {
         width: 100%;
     }
 
-    /* ── Testimonials ── */
     .testimonials {
         padding: 2.5rem 1rem;
     }
@@ -1392,7 +1380,6 @@ button {
         font-size: 0.95rem;
     }
 
-    /* ── Footer ── */
     .luxury-footer {
         padding: 2rem 1rem 1rem;
     }
@@ -1406,7 +1393,6 @@ button {
         font-size: 0.9rem;
     }
 
-    /* ── Floating Buttons: Always Visible with proper spacing ── */
     .whatsapp-float {
         width: 50px !important;
         height: 50px !important;
@@ -1423,7 +1409,7 @@ button {
     .back-to-top {
         width: 40px !important;
         height: 40px !important;
-        bottom: 80px !important; /* 60px gap above WhatsApp */
+        bottom: 80px !important;
         right: 16px !important;
         font-size: 0.8rem !important;
         z-index: 499 !important;
@@ -1440,7 +1426,7 @@ button {
         width: 42px !important;
         height: 42px !important;
         bottom: 20px !important;
-        right: 20px !important;
+        left: 20px !important;
         z-index: 500 !important;
         position: fixed !important;
         display: flex !important;
@@ -1448,7 +1434,6 @@ button {
         justify-content: center !important;
     }
 
-    /* ── Toast ── */
     .toast {
         bottom: 140px;
         right: 16px;
@@ -1508,7 +1493,6 @@ button {
         font-size: 0.65rem;
     }
 
-    /* Floating Buttons - compact on small screens */
     .whatsapp-float {
         width: 44px !important;
         height: 44px !important;
@@ -1519,7 +1503,7 @@ button {
     .back-to-top {
         width: 36px !important;
         height: 36px !important;
-        bottom: 72px !important; /* 56px gap */
+        bottom: 72px !important;
         right: 14px !important;
         font-size: 0.7rem !important;
     }
@@ -1527,7 +1511,7 @@ button {
         width: 36px !important;
         height: 36px !important;
         bottom: 16px !important;
-        right: 14px !important;
+        left: 14px !important;
         font-size: 0.8rem !important;
     }
     .dark-mode-btn i {
@@ -1551,7 +1535,7 @@ button {
     }
 }
 
-/* Landscape orientation for phones */
+/* Landscape orientation */
 @media (max-height: 500px) and (orientation: landscape) {
     .hero {
         min-height: 100vh;
@@ -1569,7 +1553,7 @@ button {
     }
 }
 
-/* Touch-friendly targets for mobile UX */
+/* Touch-friendly targets */
 @media (hover: none) and (pointer: coarse) {
     .view-btn,
     .btn-gold,
