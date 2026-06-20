@@ -32,6 +32,8 @@ export class FleetManager {
    */
   setBookings(bookings) {
     this.bookings = bookings || [];
+    // Optionally auto-check for completed bookings after loading
+    this.checkCompletedBookings();
   }
 
   _getFallbackVehicles() {
@@ -164,6 +166,42 @@ export class FleetManager {
 
     future.sort((a, b) => new Date(a.pickup_date) - new Date(b.pickup_date));
     return future;
+  }
+
+  /**
+   * Auto-check completed bookings: if return date is in the past,
+   * set vehicle availability to 'available' and optionally update booking status.
+   * This should be called after loading bookings.
+   */
+  checkCompletedBookings() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let updated = false;
+    this.bookings.forEach(booking => {
+      // Only check confirmed bookings (not already completed)
+      if (booking.status === 'confirmed' || booking.status === 'completed') {
+        const returnDate = new Date(booking.return_date);
+        returnDate.setHours(0, 0, 0, 0);
+
+        // If return date is in the past, set vehicle to available
+        if (returnDate < today) {
+          const vehicle = this.getVehicleByName(booking.car);
+          if (vehicle && this.getVehicleAvailability(vehicle.id) === 'booked') {
+            this.setVehicleAvailability(vehicle.id, 'available');
+            console.log('[FleetManager] Auto-released vehicle:', vehicle.name, 'for booking', booking.booking_id);
+            updated = true;
+            // Optionally, we could update the booking status to 'completed' here,
+            // but we'll leave that to the admin or automatic logic.
+          }
+        }
+      }
+    });
+
+    if (updated) {
+      this.refreshUI();
+    }
+    return updated;
   }
 
   addListener(callback) { this.listeners.push(callback); }

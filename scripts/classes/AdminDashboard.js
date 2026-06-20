@@ -100,8 +100,15 @@ export class AdminDashboard {
             this.bookings.push(data);
           });
           console.log('[AdminDashboard] Loaded ' + this.bookings.length + ' bookings.');
+          
+          // Pass bookings to FleetManager for availability checks
+          this.fleetManager.setBookings(this.bookings);
+          
           this._populateCarFilter();
           this._applyFilters();
+          
+          // Auto-check for completed bookings (return date passed)
+          this.fleetManager.checkCompletedBookings();
         },
         (error) => {
           console.error('[AdminDashboard] Error loading bookings:', error);
@@ -184,7 +191,7 @@ export class AdminDashboard {
     this.bookingsBody.innerHTML = this.filteredBookings.map((b) => {
       const statusClass = b.status || 'pending';
       const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
-      // ✅ FIX: Format amount with KSh
+      // Format amount with KSh
       const amount = safeParseNumber(b.total) || safeParseNumber(b.rental_total) || 0;
       const formattedAmount = formatKSh(amount);
 
@@ -228,19 +235,32 @@ export class AdminDashboard {
       .then(() => {
         showAdminToast('Booking status updated to ' + newStatus, 'success');
         this._syncFleetAvailability(id, newStatus);
+        // Refresh fleet UI on the main site
+        this.fleetManager.refreshUI();
       })
       .catch((err) => showAdminToast('Failed to update status', 'error'));
   }
 
+  /**
+   * Sync vehicle availability based on booking status change.
+   * Confirmed → booked, Completed/Cancelled → available
+   */
   _syncFleetAvailability(bookingId, newStatus) {
     const booking = this.bookings.find((b) => b.id === bookingId);
     if (!booking || !booking.car) return;
+    
     const vehicle = this.fleetManager.getVehicleByName(booking.car);
     if (!vehicle) return;
-    if (newStatus === 'confirmed' || newStatus === 'completed') {
+    
+    if (newStatus === 'confirmed') {
       this.fleetManager.setVehicleAvailability(vehicle.id, 'booked');
+      showAdminToast('Car ' + vehicle.name + ' marked as Booked', 'success');
+    } else if (newStatus === 'completed') {
+      this.fleetManager.setVehicleAvailability(vehicle.id, 'available');
+      showAdminToast('Car ' + vehicle.name + ' is now Available', 'success');
     } else if (newStatus === 'cancelled') {
       this.fleetManager.setVehicleAvailability(vehicle.id, 'available');
+      showAdminToast('Car ' + vehicle.name + ' is now Available', 'success');
     }
     this.fleetManager.refreshUI();
   }
@@ -271,18 +291,17 @@ export class AdminDashboard {
     if (this.deliveryBookingsEl) this.deliveryBookingsEl.textContent = deliveryBookings;
   }
 
+  /**
+   * Quick Stats – uses all bookings (not filtered) for most popular & avg days,
+   * but today's bookings still counts pickup date = today.
+   */
   _updateQuickStats() {
     const todayStr = getTodayString();
+    const allBookings = this.bookings;
 
-    const todayBookingsData = this.filteredBookings.filter(b => {
-      const pickup = b.pickup_date;
-      if (!pickup) return false;
-      const d = new Date(pickup);
-      return d.toISOString().split('T')[0] === todayStr;
-    });
-
+    // Most popular car (all time)
     const carCounts = {};
-    todayBookingsData.forEach(b => {
+    allBookings.forEach(b => {
       if (b.car) carCounts[b.car] = (carCounts[b.car] || 0) + 1;
     });
     let mostPopular = '—';
@@ -294,11 +313,19 @@ export class AdminDashboard {
       }
     }
 
+    // Today's bookings (pickup date = today)
+    const todayBookingsData = allBookings.filter(b => {
+      const pickup = b.pickup_date;
+      if (!pickup) return false;
+      const d = new Date(pickup);
+      return d.toISOString().split('T')[0] === todayStr;
+    });
     const todayCount = todayBookingsData.length;
 
+    // Average rental days (all time)
     let totalDays = 0;
     let count = 0;
-    todayBookingsData.forEach(b => {
+    allBookings.forEach(b => {
       const days = safeParseNumber(b.days);
       if (days > 0) {
         totalDays += days;
@@ -312,6 +339,9 @@ export class AdminDashboard {
     if (this.avgDaysEl) this.avgDaysEl.textContent = avg === '—' ? '—' : avg + ' days';
   }
 
+  /**
+   * Chart – Split bar: green for confirmed, gold for pending.
+   */
   _updateChart() {
     if (!this.chartContainer) return;
 
@@ -321,37 +351,61 @@ export class AdminDashboard {
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
       const label = d.toLocaleDateString('en-KE', { weekday: 'short' });
-      days.push({ date: dateStr, label: label, count: 0, confirmed: 0 });
+      days.push({ date: dateStr, label: label, total: 0, confirmed: 0, pending: 0 });
     }
 
-    this.filteredBookings.forEach((b) => {
+    // Use ALL bookings (not filtered)
+    this.bookings.forEach((b) => {
       if (b.created_at) {
         const createdDate = b.created_at.toDate ? b.created_at.toDate() : new Date(b.created_at);
         const dateStr = createdDate.toISOString().split('T')[0];
         const day = days.find((d) => d.date === dateStr);
         if (day) {
-          day.count++;
+          day.total++;
           if (b.status === 'confirmed' || b.status === 'completed') {
             day.confirmed++;
+          } else {
+            day.pending++;
           }
         }
       }
     });
 
-    const maxCount = Math.max(1, ...days.map((d) => d.count));
+    const maxCount = Math.max(1, ...days.map((d) => d.total));
+
     let barsHTML = '';
     let labelsHTML = '';
 
     days.forEach((day) => {
-      const percent = (day.count / maxCount) * 100;
-      const height = day.count > 0 ? Math.max(4, percent) : 0;
-      const barColor = day.confirmed > 0 ? '#2ecc71' : 'var(--accent-gold)';
+      if (day.total === 0) {
+        // Zero bookings: show an empty bar (just the wrapper)
+        barsHTML += `<div class="bar-wrapper" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
+          <div style="height:0;width:70%;border-radius:4px 4px 0 0;position:relative;"></div>
+        </div>`;
+      } else {
+        const totalHeight = (day.total / maxCount) * 100;
+        const confirmedHeight = (day.confirmed / day.total) * totalHeight;
+        const pendingHeight = (day.pending / day.total) * totalHeight;
 
-      barsHTML += `<div class="bar-wrapper" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
-        <div class="bar" style="height:${height}%;min-height:${day.count > 0 ? '4px' : '0'};background-color:${barColor};border-radius:4px 4px 0 0;width:70%;position:relative;">
-          <span class="bar-tooltip">${day.label}: ${day.count} bookings (${day.confirmed} confirmed)</span>
-        </div>
-      </div>`;
+        // Build bars inside a wrapper
+        let innerBars = '';
+        if (confirmedHeight > 0) {
+          innerBars += `<div style="height:${confirmedHeight}%;background-color:#2ecc71;border-radius:4px 4px 0 0;width:100%;position:relative;min-height:2px;">
+            <span class="bar-tooltip" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.6rem;white-space:nowrap;display:none;z-index:10;">
+              ${day.label}: ${day.total} bookings (${day.confirmed} confirmed)
+            </span>
+          </div>`;
+        }
+        if (pendingHeight > 0) {
+          innerBars += `<div style="height:${pendingHeight}%;background-color:var(--accent-gold);border-radius:${confirmedHeight > 0 ? '0' : '4px 4px 0 0'};width:100%;position:relative;min-height:2px;"></div>`;
+        }
+
+        barsHTML += `<div class="bar-wrapper" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
+          <div style="display:flex;flex-direction:column;align-items:center;height:100%;width:70%;justify-content:flex-end;position:relative;">
+            ${innerBars}
+          </div>
+        </div>`;
+      }
 
       labelsHTML += `<div class="day-label">${day.label}</div>`;
     });
@@ -365,12 +419,13 @@ export class AdminDashboard {
       </div>
     `;
 
-    this.chartContainer.querySelectorAll('.bar').forEach((bar) => {
-      bar.addEventListener('mouseenter', function() {
+    // Tooltip hover events
+    this.chartContainer.querySelectorAll('.bar-wrapper').forEach((wrapper) => {
+      wrapper.addEventListener('mouseenter', function() {
         const tip = this.querySelector('.bar-tooltip');
         if (tip) tip.style.display = 'block';
       });
-      bar.addEventListener('mouseleave', function() {
+      wrapper.addEventListener('mouseleave', function() {
         const tip = this.querySelector('.bar-tooltip');
         if (tip) tip.style.display = 'none';
       });
