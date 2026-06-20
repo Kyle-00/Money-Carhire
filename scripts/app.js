@@ -108,7 +108,6 @@ class App {
     initLazyImages();
     initFooterYear();
     initAdminShortcut();
-    initBookingForm();
     initContactForm();
     if (document.getElementById('adminLoginPassword')) {
       initAdminLogin();

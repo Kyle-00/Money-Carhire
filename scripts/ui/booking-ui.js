@@ -5,13 +5,16 @@
 import { getFleetManager } from '../classes/FleetManager.js';
 import { Booking } from '../classes/Booking.js';
 import { $, showToast } from '../helpers/dom-helpers.js';
-import { formatDateDisplay, toDateString } from '../helpers/format-helpers.js';
+import { formatDateDisplay, toDateString, formatKSh } from '../helpers/format-helpers.js';
 import { daysBetween, generateBookingId, getQueryParams, calculateBookingTotals } from '../helpers/business-helpers.js';
 import { validateEmail, validatePhone, isValidString } from '../helpers/validation-helpers.js';
 import { saveBooking } from '../services/firebase-service.js';
 import { sendBookingEmails, isEmailJSAvailable, sendEmailFallback } from '../services/email-service.js';
 
 const DELIVERY_FEE = window.CONFIG?.deliveryFee || 1000;
+
+// Flag to ensure we attach submit listener only once
+let submitListenerAttached = false;
 
 export function initBookingPage() {
   const vehicleSelect = document.getElementById('vehicleSelect');
@@ -39,6 +42,7 @@ export function initBookingPage() {
   // Add availability check listeners
   setupAvailabilityCheck();
 
+  // Init form – this will attach the submit listener only once
   initBookingForm();
 }
 
@@ -83,6 +87,12 @@ export function initBookingForm() {
   const form = document.getElementById('bookingForm');
   if (!form) return;
 
+  // Prevent attaching the submit listener more than once
+  if (submitListenerAttached) {
+    console.log('[Booking] Submit listener already attached.');
+    return;
+  }
+
   function setError(inputId, errId, show) {
     const input = document.getElementById(inputId);
     const err = document.getElementById(errId);
@@ -91,8 +101,20 @@ export function initBookingForm() {
     return show;
   }
 
-  form.addEventListener('submit', async function(e) {
+  // Flag to prevent duplicate submissions
+  let isSubmitting = false;
+
+  // Define the submit handler as a named function so we can remove it if needed
+  async function handleSubmit(e) {
     e.preventDefault();
+
+    // Prevent duplicate submissions
+    if (isSubmitting) {
+      console.warn('[Booking] Submission already in progress. Ignoring duplicate.');
+      return;
+    }
+    isSubmitting = true;
+
     let hasError = false;
     const name = document.getElementById('fieldName')?.value.trim() || '';
     const email = document.getElementById('fieldEmail')?.value.trim() || '';
@@ -131,6 +153,7 @@ export function initBookingForm() {
       showToast('Please fix the highlighted fields.', 'error');
       const firstErr = form.querySelector('.error');
       if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      isSubmitting = false; // Reset lock
       return;
     }
 
@@ -166,8 +189,10 @@ export function initBookingForm() {
         requests: document.getElementById('fieldRequests')?.value.trim() || 'None'
       };
 
+      // Save to Firebase
       await saveBooking(bookingData);
 
+      // Send emails
       let emailSent = false, emailError = null;
       if (isEmailJSAvailable()) {
         try { await sendBookingEmails(bookingData); emailSent = true; }
@@ -177,6 +202,7 @@ export function initBookingForm() {
         emailSent = true;
       }
 
+      // Show success
       document.getElementById('bookingFormWrap').style.display = 'none';
       document.getElementById('bookingSuccess').style.display = 'block';
 
@@ -191,9 +217,15 @@ export function initBookingForm() {
     } finally {
       btn.innerHTML = originalHTML;
       btn.disabled = false;
+      isSubmitting = false; // Reset lock
     }
-  });
+  }
 
+  // Attach the submit listener
+  form.addEventListener('submit', handleSubmit);
+  submitListenerAttached = true;
+
+  // Clear errors on input
   form.querySelectorAll('input, select, textarea').forEach(el => {
     el.addEventListener('input', () => el.classList.remove('error'));
     el.addEventListener('change', () => el.classList.remove('error'));
@@ -271,7 +303,6 @@ function setupAvailabilityCheck() {
   vehicleSelect?.addEventListener('change', checkAvailability);
   pickupDateInput?.addEventListener('change', checkAvailability);
   returnDateInput?.addEventListener('change', checkAvailability);
-  // Also on input for immediate feedback
   pickupDateInput?.addEventListener('input', checkAvailability);
   returnDateInput?.addEventListener('input', checkAvailability);
 }
