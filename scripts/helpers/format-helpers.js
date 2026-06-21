@@ -24,8 +24,16 @@ export function formatDateDisplay(dateStr) {
   return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+/**
+ * Convert Date object to YYYY-MM-DD string (local time)
+ * @param {Date} date - Date object
+ * @returns {string} YYYY-MM-DD string
+ */
 export function toDateString(date) {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function formatPhoneForWhatsApp(phone) {
@@ -36,6 +44,11 @@ export function formatPhoneForWhatsApp(phone) {
   return cleaned;
 }
 
+/**
+ * Get today's date as YYYY-MM-DD string (local time)
+ * @returns {string} Today's date
+ */
 export function getTodayString() {
-  return new Date().toISOString().split('T')[0];
+  const now = new Date();
+  return toDateString(now);
 }
