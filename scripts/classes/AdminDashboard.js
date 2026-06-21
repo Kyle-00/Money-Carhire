@@ -341,6 +341,7 @@ export class AdminDashboard {
 
   /**
    * Chart – Split bar: green for confirmed, gold for pending.
+   * Tooltip shows both confirmed and pending counts.
    */
   _updateChart() {
     if (!this.chartContainer) return;
@@ -392,7 +393,7 @@ export class AdminDashboard {
         if (confirmedHeight > 0) {
           innerBars += `<div style="height:${confirmedHeight}%;background-color:#2ecc71;border-radius:4px 4px 0 0;width:100%;position:relative;min-height:2px;">
             <span class="bar-tooltip" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.6rem;white-space:nowrap;display:none;z-index:10;">
-              ${day.label}: ${day.total} bookings (${day.confirmed} confirmed)
+              ${day.label}: ${day.total} bookings (${day.confirmed} confirmed, ${day.pending} pending)
             </span>
           </div>`;
         }

@@ -32,8 +32,40 @@ export class FleetManager {
    */
   setBookings(bookings) {
     this.bookings = bookings || [];
-    // Optionally auto-check for completed bookings after loading
+    // Recompute availability from bookings (overrides localStorage)
+    this.recomputeAvailabilityFromBookings();
+    // Auto-check for completed bookings (return date passed)
     this.checkCompletedBookings();
+  }
+
+  /**
+   * Recompute availability for each vehicle based on confirmed/completed bookings.
+   * This ensures that if localStorage has stale data, the correct status is shown.
+   */
+  recomputeAvailabilityFromBookings() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    this.vehicles.forEach(vehicle => {
+      // Check if there is any confirmed/completed booking that overlaps today
+      const isBookedToday = this.bookings.some(b =>
+        b.car === vehicle.name &&
+        (b.status === 'confirmed' || b.status === 'completed') &&
+        new Date(b.pickup_date) <= today &&
+        new Date(b.return_date) >= today
+      );
+
+      // Only override if vehicle is not in maintenance
+      if (this.getVehicleAvailability(vehicle.id) !== 'maintenance') {
+        const newStatus = isBookedToday ? 'booked' : 'available';
+        if (this.availability[vehicle.id] !== newStatus) {
+          this.availability[vehicle.id] = newStatus;
+        }
+      }
+    });
+
+    this._saveAvailability();
+    this.refreshUI();
   }
 
   _getFallbackVehicles() {
@@ -191,8 +223,6 @@ export class FleetManager {
             this.setVehicleAvailability(vehicle.id, 'available');
             console.log('[FleetManager] Auto-released vehicle:', vehicle.name, 'for booking', booking.booking_id);
             updated = true;
-            // Optionally, we could update the booking status to 'completed' here,
-            // but we'll leave that to the admin or automatic logic.
           }
         }
       }
@@ -215,6 +245,27 @@ export class FleetManager {
       window.renderAdminFleet();
     }
   }
+
+  /**
+   * Listen for storage changes from other tabs to sync availability.
+   */
+  static initStorageListener() {
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'carAvailability') {
+        const instance = getFleetManager();
+        instance.availability = instance._loadAvailability();
+        // Recompute from bookings to ensure consistency
+        instance.recomputeAvailabilityFromBookings();
+        instance.refreshUI();
+        // Re-render vehicles on index page if present
+        if (document.getElementById('carsGrid')) {
+          import('../ui/fleet-ui.js').then(({ renderVehicles }) => {
+            renderVehicles(instance.vehicles);
+          });
+        }
+      }
+    });
+  }
 }
 
 let fleetManagerInstance = null;
@@ -222,6 +273,8 @@ let fleetManagerInstance = null;
 export function getFleetManager() {
   if (!fleetManagerInstance) {
     fleetManagerInstance = new FleetManager();
+    // Initialize storage listener only once
+    FleetManager.initStorageListener();
   }
   return fleetManagerInstance;
 }
