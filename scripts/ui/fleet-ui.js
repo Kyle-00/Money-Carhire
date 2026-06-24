@@ -31,7 +31,6 @@ export function renderVehicles(vehicles, bookings = []) {
       availabilityLabel = 'In Maintenance';
       availabilityClass = 'maintenance';
     } else if (futureBookings.length > 0) {
-      // Show "Booked" if there is any future confirmed booking
       availabilityLabel = 'Booked';
       availabilityClass = 'unavailable';
       const next = futureBookings[0];
@@ -45,6 +44,16 @@ export function renderVehicles(vehicles, bookings = []) {
 
     const badgeHTML = v.badge ? `<div class="car-badge">${v.badge}</div>` : '';
 
+    // Determine engine type
+    let engineType = 'Automatic';
+    if (v.category === 'suv') engineType = 'V6';
+    else if (v.category === 'sedan') engineType = 'V6';
+    else if (v.category === 'economy') engineType = '1.5L';
+
+    // Format price
+    const formattedPrice = v.getFormattedPrice ? v.getFormattedPrice() : 'KSh ' + v.price.toLocaleString();
+
+    // Full card HTML – now with all details
     return `<div class="car-card reveal" data-category="${v.category}" data-car-id="${v.id}">
       ${badgeHTML}
       <span class="availability-badge ${availabilityClass}">${availabilityLabel}</span>
@@ -53,11 +62,18 @@ export function renderVehicles(vehicles, bookings = []) {
       <div class="card-content">
         <div class="car-title">${v.name}</div>
         <div class="car-details">
-          <span><i class="fas fa-cog"></i> Automatic</span>
-          <span><i class="fas fa-tachometer-alt"></i> ${v.getEngineType ? v.getEngineType() : 'Automatic'}</span>
-          <div class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><span>4.8</span></div>
+          <span><i class="fas fa-cog"></i> ${engineType}</span>
+          <span><i class="fas fa-tachometer-alt"></i> ${engineType}</span>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+            <span>4.8</span>
+          </div>
         </div>
-        <div class="price-day">${v.getFormattedPrice ? v.getFormattedPrice() : 'KSh ' + v.price.toLocaleString()} <span>/ day</span></div>
+        <div class="price-day">${formattedPrice} <span>/ day</span></div>
         <a href="booking.html?car=${encodeURIComponent(v.name)}&price=${v.price}&category=${v.category}" class="view-btn">Book Now <i class="fas fa-arrow-right"></i></a>
       </div>
     </div>`;
@@ -117,7 +133,7 @@ export function updateAvailabilityBadges() {
       badge.className = `availability-badge ${cls}`;
     }
 
-    // Also update the booking details div if present
+    // Update booking details div if present
     const detailsDiv = card.querySelector('.car-card > div:not(.availability-badge):not(.car-badge)');
     if (detailsDiv && futureBookings.length > 0) {
       const next = futureBookings[0];
