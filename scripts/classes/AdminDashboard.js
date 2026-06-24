@@ -246,25 +246,32 @@ export class AdminDashboard {
    * Confirmed → booked, Completed/Cancelled → available
    */
   _syncFleetAvailability(bookingId, newStatus) {
-    const booking = this.bookings.find((b) => b.id === bookingId);
-    if (!booking || !booking.car) return;
-    
-    const vehicle = this.fleetManager.getVehicleByName(booking.car);
-    if (!vehicle) return;
-    
-    if (newStatus === 'confirmed') {
-      this.fleetManager.setVehicleAvailability(vehicle.id, 'booked');
-      showAdminToast('Car ' + vehicle.name + ' marked as Booked', 'success');
-    } else if (newStatus === 'completed') {
-      this.fleetManager.setVehicleAvailability(vehicle.id, 'available');
-      showAdminToast('Car ' + vehicle.name + ' is now Available', 'success');
-    } else if (newStatus === 'cancelled') {
-      this.fleetManager.setVehicleAvailability(vehicle.id, 'available');
-      showAdminToast('Car ' + vehicle.name + ' is now Available', 'success');
-    }
-    this.fleetManager.refreshUI();
+  const booking = this.bookings.find((b) => b.id === bookingId);
+  if (!booking || !booking.car) return;
+
+  const vehicle = this.fleetManager.getVehicleByName(booking.car);
+  if (!vehicle) return;
+
+  if (newStatus === 'confirmed') {
+    // When confirmed → mark as booked immediately
+    this.fleetManager.setVehicleAvailability(vehicle.id, 'booked');
+    showAdminToast('Car ' + vehicle.name + ' marked as Booked', 'success');
+  } else if (newStatus === 'completed' || newStatus === 'cancelled') {
+    // When completed or cancelled → set back to available
+    this.fleetManager.setVehicleAvailability(vehicle.id, 'available');
+    showAdminToast('Car ' + vehicle.name + ' is now Available', 'success');
   }
 
+  // Refresh the admin fleet UI
+  this.fleetManager.refreshUI();
+
+  // Also refresh the index page if open in another tab
+  if (document.getElementById('carsGrid')) {
+    import('../ui/fleet-ui.js').then(({ renderVehicles }) => {
+      renderVehicles(this.fleetManager.vehicles);
+    });
+  }
+}
   _deleteBooking(id) {
     if (!this.db || !confirm('Delete this booking?')) return;
     this.db.collection('bookings').doc(id).delete()

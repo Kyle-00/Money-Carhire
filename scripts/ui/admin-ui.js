@@ -73,18 +73,23 @@ export function initAdminFleet() {
         </div>
       </div>`;
     }).join('');
-
-    grid.querySelectorAll('.admin-card .btn-group button').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const newStatus = this.dataset.status;
-        fleetManager.setVehicleAvailability(id, newStatus);
-        renderAdminFleet();
-        fleetManager.refreshUI();
-        showAdminToast(`Status updated for ${id}`, 'success');
-      });
-    });
   }
+
+ grid.querySelectorAll('.admin-card .btn-group button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.dataset.id;
+    const newStatus = this.dataset.status;
+
+    // Immediately update availability
+    fleetManager.setVehicleAvailability(id, newStatus);
+
+    // Re-render the admin grid
+    renderAdminFleet();
+
+    // Show toast
+    showAdminToast(`Status updated for ${id}`, 'success');
+  });
+});
 
   window.renderAdminFleet = renderAdminFleet;
 

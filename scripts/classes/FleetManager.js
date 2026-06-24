@@ -12,7 +12,7 @@ export class FleetManager {
     this.availability = this._loadAvailability();
     this.isLoaded = false;
     this.listeners = [];
-    this.bookings = []; // Will hold all confirmed/completed bookings
+    this.bookings = [];
   }
 
   async loadVehicles() {
@@ -28,44 +28,13 @@ export class FleetManager {
   }
 
   /**
-   * Set bookings from Firebase (to be used for availability checks)
+   * Set bookings from Firebase.
+   * Only auto‑release vehicles when the return date has passed.
+   * DO NOT override manual status changes.
    */
   setBookings(bookings) {
     this.bookings = bookings || [];
-    // Recompute availability from bookings (overrides localStorage)
-    this.recomputeAvailabilityFromBookings();
-    // Auto-check for completed bookings (return date passed)
-    this.checkCompletedBookings();
-  }
-
-  /**
-   * Recompute availability for each vehicle based on confirmed/completed bookings.
-   * This ensures that if localStorage has stale data, the correct status is shown.
-   */
-  recomputeAvailabilityFromBookings() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    this.vehicles.forEach(vehicle => {
-      // Check if there is any confirmed/completed booking that overlaps today
-      const isBookedToday = this.bookings.some(b =>
-        b.car === vehicle.name &&
-        (b.status === 'confirmed' || b.status === 'completed') &&
-        new Date(b.pickup_date) <= today &&
-        new Date(b.return_date) >= today
-      );
-
-      // Only override if vehicle is not in maintenance
-      if (this.getVehicleAvailability(vehicle.id) !== 'maintenance') {
-        const newStatus = isBookedToday ? 'booked' : 'available';
-        if (this.availability[vehicle.id] !== newStatus) {
-          this.availability[vehicle.id] = newStatus;
-        }
-      }
-    });
-
-    this._saveAvailability();
-    this.refreshUI();
+    this.checkCompletedBookings(); // auto‑release if return date is in the past
   }
 
   _getFallbackVehicles() {
@@ -96,7 +65,6 @@ export class FleetManager {
     localStorage.setItem('carAvailability', JSON.stringify(this.availability));
   }
 
-  // Legacy simple availability (still used for maintenance and overall status)
   getVehicleAvailability(vehicleId) {
     return this.availability[vehicleId] || 'available';
   }
@@ -126,11 +94,7 @@ export class FleetManager {
 
   /**
    * Check if a vehicle is available for a specific date range.
-   * Only considers confirmed or completed bookings.
-   * @param {string} vehicleId - Vehicle ID
-   * @param {string} pickupDate - YYYY-MM-DD
-   * @param {string} returnDate - YYYY-MM-DD
-   * @returns {object} { available: boolean, conflicts: Array }
+   * Uses the actual bookings (confirmed/completed) to check overlapping dates.
    */
   checkVehicleAvailabilityForDates(vehicleId, pickupDate, returnDate) {
     const vehicle = this.getVehicleById(vehicleId);
@@ -138,12 +102,10 @@ export class FleetManager {
       return { available: false, conflicts: ['Vehicle not found'] };
     }
 
-    // If the vehicle is in maintenance, it's unavailable regardless of dates
     if (this.getVehicleAvailability(vehicleId) === 'maintenance') {
       return { available: false, conflicts: ['Vehicle is under maintenance'] };
     }
 
-    // Filter confirmed bookings for this vehicle
     const confirmedBookings = this.bookings.filter(b =>
       b.car === vehicle.name &&
       (b.status === 'confirmed' || b.status === 'completed')
@@ -160,10 +122,7 @@ export class FleetManager {
     confirmedBookings.forEach(b => {
       const bPickup = new Date(b.pickup_date);
       const bReturn = new Date(b.return_date);
-
-      // Overlap check: (start1 <= end2) && (start2 <= end1)
       const overlap = (pickup <= bReturn) && (bPickup <= returnD);
-
       if (overlap) {
         conflicts.push({
           booking_id: b.booking_id || b.id,
@@ -181,15 +140,16 @@ export class FleetManager {
   }
 
   /**
-   * Get future bookings (confirmed/completed) for a vehicle
-   * @param {string} vehicleId
-   * @returns {Array} Array of booking objects (sorted by pickup_date)
+   * Get future bookings (confirmed/completed) for a vehicle.
+   * Used to show "Booked" on the index page if any future booking exists.
    */
   getFutureBookingsForVehicle(vehicleId) {
     const vehicle = this.getVehicleById(vehicleId);
     if (!vehicle) return [];
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const future = this.bookings.filter(b =>
       b.car === vehicle.name &&
       (b.status === 'confirmed' || b.status === 'completed') &&
@@ -201,9 +161,8 @@ export class FleetManager {
   }
 
   /**
-   * Auto-check completed bookings: if return date is in the past,
-   * set vehicle availability to 'available' and optionally update booking status.
-   * This should be called after loading bookings.
+   * Auto‑release vehicles when the return date has passed.
+   * This ensures cars become available again after the rental period ends.
    */
   checkCompletedBookings() {
     const today = new Date();
@@ -211,26 +170,22 @@ export class FleetManager {
 
     let updated = false;
     this.bookings.forEach(booking => {
-      // Only check confirmed bookings (not already completed)
       if (booking.status === 'confirmed' || booking.status === 'completed') {
         const returnDate = new Date(booking.return_date);
         returnDate.setHours(0, 0, 0, 0);
 
-        // If return date is in the past, set vehicle to available
         if (returnDate < today) {
           const vehicle = this.getVehicleByName(booking.car);
           if (vehicle && this.getVehicleAvailability(vehicle.id) === 'booked') {
             this.setVehicleAvailability(vehicle.id, 'available');
-            console.log('[FleetManager] Auto-released vehicle:', vehicle.name, 'for booking', booking.booking_id);
+            console.log('[FleetManager] Auto-released:', vehicle.name);
             updated = true;
           }
         }
       }
     });
 
-    if (updated) {
-      this.refreshUI();
-    }
+    if (updated) this.refreshUI();
     return updated;
   }
 
@@ -246,18 +201,12 @@ export class FleetManager {
     }
   }
 
-  /**
-   * Listen for storage changes from other tabs to sync availability.
-   */
   static initStorageListener() {
     window.addEventListener('storage', (e) => {
       if (e.key === 'carAvailability') {
         const instance = getFleetManager();
         instance.availability = instance._loadAvailability();
-        // Recompute from bookings to ensure consistency
-        instance.recomputeAvailabilityFromBookings();
         instance.refreshUI();
-        // Re-render vehicles on index page if present
         if (document.getElementById('carsGrid')) {
           import('../ui/fleet-ui.js').then(({ renderVehicles }) => {
             renderVehicles(instance.vehicles);
@@ -273,7 +222,6 @@ let fleetManagerInstance = null;
 export function getFleetManager() {
   if (!fleetManagerInstance) {
     fleetManagerInstance = new FleetManager();
-    // Initialize storage listener only once
     FleetManager.initStorageListener();
   }
   return fleetManagerInstance;

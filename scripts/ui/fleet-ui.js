@@ -12,46 +12,43 @@ export function renderVehicles(vehicles, bookings = []) {
     grid.innerHTML = '<p style="text-align:center;padding:2rem;color:var(--text-secondary);">No vehicles available.</p>';
     return;
   }
-  const fleetManager = getFleetManager();
 
-  // Ensure fleetManager has bookings for date checks
+  const fleetManager = getFleetManager();
   if (bookings && bookings.length > 0) {
     fleetManager.setBookings(bookings);
   }
 
   grid.innerHTML = vehicles.map(v => {
     const status = fleetManager.getVehicleAvailability(v.id);
-    const badgeHTML = v.badge ? `<div class="car-badge">${v.badge}</div>` : '';
+    const futureBookings = fleetManager.getFutureBookingsForVehicle(v.id);
 
-    // Determine availability label and class
+    // Determine availability label & class
     let availabilityLabel = 'Available';
     let availabilityClass = 'available';
-    let availabilityDetails = '';
+    let bookingDetails = '';
 
     if (status === 'maintenance') {
       availabilityLabel = 'In Maintenance';
       availabilityClass = 'maintenance';
-    } else {
-      // Check future bookings for this vehicle
-      const futureBookings = fleetManager.getFutureBookingsForVehicle(v.id);
-      if (futureBookings.length > 0) {
-        const next = futureBookings[0];
-        availabilityLabel = 'Booked';
-        availabilityClass = 'unavailable';
-        availabilityDetails = `Booked: ${formatDateDisplay(next.pickup_date)} - ${formatDateDisplay(next.return_date)}`;
-        if (futureBookings.length > 1) {
-          availabilityDetails += ` (+${futureBookings.length - 1} more)`;
-        }
-      } else {
-        availabilityLabel = 'Available';
-        availabilityClass = 'available';
-      }
+    } else if (futureBookings.length > 0) {
+      // Show "Booked" if there is any future confirmed booking
+      availabilityLabel = 'Booked';
+      availabilityClass = 'unavailable';
+      const next = futureBookings[0];
+      bookingDetails = `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">
+        Booked: ${formatDateDisplay(next.pickup_date)} - ${formatDateDisplay(next.return_date)}
+      </div>`;
+    } else if (status === 'booked') {
+      availabilityLabel = 'Currently Booked';
+      availabilityClass = 'unavailable';
     }
+
+    const badgeHTML = v.badge ? `<div class="car-badge">${v.badge}</div>` : '';
 
     return `<div class="car-card reveal" data-category="${v.category}" data-car-id="${v.id}">
       ${badgeHTML}
       <span class="availability-badge ${availabilityClass}">${availabilityLabel}</span>
-      ${availabilityDetails ? `<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">${availabilityDetails}</div>` : ''}
+      ${bookingDetails}
       <img class="car-img" src="assets/images/${v.image}" alt="${v.name}" loading="lazy">
       <div class="card-content">
         <div class="car-title">${v.name}</div>
@@ -90,17 +87,43 @@ export function setupFleetFilter() {
 export function updateAvailabilityBadges() {
   const cards = document.querySelectorAll('.car-card');
   const fleetManager = getFleetManager();
+
   cards.forEach(card => {
     const id = card.dataset.carId;
     if (!id) return;
+
+    const futureBookings = fleetManager.getFutureBookingsForVehicle(id);
     const status = fleetManager.getVehicleAvailability(id);
     const badge = card.querySelector('.availability-badge');
+
     if (badge) {
-      let label = 'Available', cls = 'available';
-      if (status === 'booked') { label = 'Currently Booked'; cls = 'unavailable'; }
-      else if (status === 'maintenance') { label = 'In Maintenance'; cls = 'maintenance'; }
+      let label = 'Available';
+      let cls = 'available';
+
+      if (status === 'maintenance') {
+        label = 'In Maintenance';
+        cls = 'maintenance';
+      } else if (futureBookings.length > 0) {
+        label = 'Booked';
+        cls = 'unavailable';
+        const next = futureBookings[0];
+        badge.title = `Booked: ${formatDateDisplay(next.pickup_date)} - ${formatDateDisplay(next.return_date)}`;
+      } else if (status === 'booked') {
+        label = 'Currently Booked';
+        cls = 'unavailable';
+      }
+
       badge.textContent = label;
       badge.className = `availability-badge ${cls}`;
+    }
+
+    // Also update the booking details div if present
+    const detailsDiv = card.querySelector('.car-card > div:not(.availability-badge):not(.car-badge)');
+    if (detailsDiv && futureBookings.length > 0) {
+      const next = futureBookings[0];
+      detailsDiv.innerHTML = `Booked: ${formatDateDisplay(next.pickup_date)} - ${formatDateDisplay(next.return_date)}`;
+    } else if (detailsDiv) {
+      detailsDiv.innerHTML = '';
     }
   });
 }
