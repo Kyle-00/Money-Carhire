@@ -1595,3 +1595,116 @@ button {
         transform: none;
     }
 }
+
+.car-card .card-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 1.2rem 1.2rem 1.4rem !important;
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+}
+
+.car-card .car-title {
+    display: block !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 0.5rem !important;
+    line-height: 1.3 !important;
+}
+
+.car-card .car-details {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.8rem !important;
+    font-size: 0.82rem !important;
+    color: var(--text-secondary) !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+}
+
+.car-card .car-details span {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.car-card .car-details i {
+    color: var(--accent-gold) !important;
+    font-size: 0.8rem !important;
+}
+
+.car-card .rating {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+}
+
+.car-card .rating i {
+    color: var(--accent-gold) !important;
+    font-size: 0.75rem !important;
+}
+
+.car-card .rating span {
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    margin-left: 3px !important;
+    font-size: 0.85rem !important;
+}
+
+.car-card .price-day {
+    display: block !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: var(--accent-gold) !important;
+    margin-bottom: 0.9rem !important;
+}
+
+.car-card .price-day span {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: var(--text-secondary) !important;
+}
+
+.car-card .view-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+    padding: 0.6rem 0 !important;
+    border-radius: 40px !important;
+    border: 2px solid var(--accent-gold) !important;
+    color: var(--accent-gold) !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    text-decoration: none !important;
+    transition: all 0.25s ease !important;
+    background: transparent !important;
+    cursor: pointer !important;
+}
+
+.car-card .view-btn:hover {
+    background: var(--accent-gold) !important;
+    color: #111 !important;
+}
+
+/* Ensure dark mode card content visibility */
+body.dark .car-card .card-content {
+    background: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark .car-card .car-title {
+    color: var(--text-primary) !important;
+}
+
+body.dark .car-card .rating span {
+    color: var(--text-primary) !important;
+}
+
+body.dark .car-card .price-day {
+    color: var(--accent-gold) !important;
+}
